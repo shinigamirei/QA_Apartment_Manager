@@ -48,18 +48,22 @@ let ApartmentSchema = new Schema({
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);
 
-//module.exports.createOccupancy = function(apartment_id, room_name, trainee_id, occupancy_start, occupancy_end){
-//:	Apartment.updateOnce(
-//		{_id: apartment_id}, 
-//		{room_name_number: room_name}, 
-//		{$push: 
-//			{room_occupancies: 
-//				{ trainee_id: trainee_id}, 
-//				{occupancy_start: occupancy_start}, 
-//				{occupancy_end: occupancy_end}
-//			}
-//		}
-//	)
-//}
+var Apartments =module.exports = mongoose.model('Apartment', ApartmentSchema);
 
-		
+module.exports.createOccupancy = function(apartment_id, room_name, trainee_id, occupancy_start, occupancy_end){
+Apartments.update(
+     {$and: [
+     {'_id':apartment_id},
+     {'Apartment_rooms.room_name_number': room_name}
+	]},
+    { "$push": 
+        {"Apartment_rooms.$.room_occupancies": 
+			{
+        		"trainee_id": trainee_id, 
+			"occupancy_start": occupancy_start, 
+			"occupancy_end": occupancy_end
+			}
+        }
+    }
+)	
+}

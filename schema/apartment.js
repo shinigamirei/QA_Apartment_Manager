@@ -16,5 +16,26 @@ let Apartment = new Schema({
 					enum: ['Manchester', 'Brighton', 'Leeds']
 					requred: true
 				},
+		Apartment_rooms: new Schema({
+					room_name_number: {
+						type: String,
+						required: true
+					},
+					room_occupancies: new Schema({
+						trainee_id:{
+							type: String,
+							required: true
+						},
+						occupancy_start:{
+							type: String,
+							format: Date
+						},
+						occupancy_end:{
+							type: String,
+							format: Date
+						}
+					})
+				})
+
 });
 

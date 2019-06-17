@@ -102,9 +102,16 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
             console.log(err);
         }
         else {
+            loop:
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
-                    apartment.apartment_rooms[i].room_occupancies = { "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() }
+                    for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
+                        if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
+                            res.status(205).send('This trainee is already there');
+                            break loop;
+                        }
+                    }
+                    apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() });
                     apartment.save();
                     res.status(200).send('Occupancy added');
                 }
@@ -120,6 +127,7 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
             console.log(err);
         }
         else {
+            loop:
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
@@ -127,8 +135,10 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
                             apartment.save();
                             res.status(200).send('Occupancy removed');
+                            break loop;
                         }
                     }
+                    res.status(205).send('Trainee not in that room');
                 }
             }
         }

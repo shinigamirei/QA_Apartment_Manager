@@ -4,6 +4,7 @@ var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
 require('dotenv').config()
+var moment = require('moment');
 
 apartmentRoutes.route('/getAll/').get(function (req, res) {
     console.log('Looked up all apartments');
@@ -59,6 +60,61 @@ apartmentRoutes.route('/delete/:id').delete(function (req, res) {
             console.log('Apartment deleted');
         }
     });
+});
+
+apartmentRoutes.route('/addRoom/').post(function (req, res) {
+    console.log('Adding room ' + req.body.room_name_number + ' to apartment ' + req.body._id);
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            apartment.Apartment_rooms.push({ "room_name_number": req.body.room_name_number });
+            apartment.save();
+            res.status(200).send('Room added');
+        }
+    });
+});
+
+apartmentRoutes.route('/deleteRoom/').delete(function (req, res) {
+    console.log('Removing room ' + req.body.room_name_number + ' from apartment ' + req.body._id);
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            for (var i = 0; i < apartment.Apartment_rooms.length; i++) {
+                if (apartment.Apartment_rooms[i].room_name_number === req.body.room_name_number) {
+                    apartment.Apartment_rooms.splice(i, 1);
+                    apartment.save();
+                    res.status(200).send('Room removed');
+                }
+            }
+            //res.status(205).send('No such room');
+        }
+    });
+});
+
+apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
+    console.log('Adding accupancy to room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            for (var i = 0; i < apartment.Apartment_rooms.length; i++) {
+                if (apartment.Apartment_rooms[i].room_name_number === req.body.room_name_number) {
+                    apartment.Apartment_rooms[i].room_occupancies = { "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() }
+                    apartment.save();
+                    res.status(200).send('Occupancy added');
+                }
+            }
+        }
+    });
+});
+
+apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
+
 });
 
 module.exports = apartmentRoutes;

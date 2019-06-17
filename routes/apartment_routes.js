@@ -3,6 +3,7 @@ var apartmentRoutes = express.Router();
 var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
+let Occupancies = require('../models/occupancies.model');
 require('dotenv').config()
 var moment = require('moment');
 
@@ -69,9 +70,17 @@ apartmentRoutes.route('/addRoom/').post(function (req, res) {
             console.log(err);
         }
         else {
+            for (var i = 0; i < apartment.apartment_rooms.length; i++) {
+                if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
+                    res.status(205).send('Room already exists');
+                    console.log('Room already exists');
+                    return;
+                }
+            }
             apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number });
             apartment.save();
             res.status(200).send('Room added');
+            console.log('Room added');
         }
     });
 });
@@ -88,9 +97,11 @@ apartmentRoutes.route('/deleteRoom/').delete(function (req, res) {
                     apartment.apartment_rooms.splice(i, 1);
                     apartment.save();
                     res.status(200).send('Room removed');
+                    return;
                 }
             }
-            //res.status(205).send('No such room');
+            res.status(205).send('Room not found');
+            console.log('No such room');
         }
     });
 });
@@ -102,20 +113,24 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
             console.log(err);
         }
         else {
-            loop:
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
                         if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
                             res.status(205).send('This trainee is already there');
-                            break loop;
+                            console.log('Could not add occupancy');
+                            return;
                         }
                     }
                     apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() });
                     apartment.save();
                     res.status(200).send('Occupancy added');
+                    console.log('Occupancy added');
+                    return;
                 }
             }
+            res.status(205).send('Room not found');
+            console.log('No such room');
         }
     });
 });
@@ -127,7 +142,6 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
             console.log(err);
         }
         else {
-            loop:
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
@@ -135,12 +149,17 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
                             apartment.save();
                             res.status(200).send('Occupancy removed');
-                            break loop;
+                            console.log('Occupancy removed');
+                            return;
                         }
                     }
                     res.status(205).send('Trainee not in that room');
+                    console.log('Could not remove occupancy');
+                    return;
                 }
             }
+            res.status(205).send('Room not found');
+            console.log('No such room');
         }
     });
 });

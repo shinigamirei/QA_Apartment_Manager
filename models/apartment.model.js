@@ -3,20 +3,20 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
 let ApartmentSchema = new Schema({
-    Apartment_name: {
+    apartment_name: {
         type: String,
         required: true
     },
-    Apartment_address: {
+    apartment_address: {
         type: String,
         required: true
     },
-    Apartment_region: {
+    apartment_region: {
         type: String,
         enum: ['Manchester', 'Brighton', 'Leeds'],
         required: true
     },
-    Apartment_rooms: [new Schema({
+    apartment_rooms: [new Schema({
 
         room_name_number: {
             type: String,

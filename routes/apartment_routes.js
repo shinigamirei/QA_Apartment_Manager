@@ -81,7 +81,7 @@ apartmentRoutes.route('/addRoom/').post(function (req, res) {
                     return;
                 }
             }
-            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number );
+            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number });
             apartment.save();
             res.status(200).send('Room added');
             console.log('Room added');
@@ -177,7 +177,6 @@ apartmentRoutes.route('/checkdates/').post(function (req, res) {
         }
         else {
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
-
                 console.log(apartment.apartment_rooms[i].room_name_number);
                 console.log(req.body.room_name_number);
                 console.log(apartment.apartment_rooms[i].room_name_number === req.body.room_name_number);

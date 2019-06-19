@@ -4,6 +4,7 @@ var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
 let Occupancies = require('../models/occupancies.model');
+let Room = require('../models/room.model');
 require('dotenv').config()
 var moment = require('moment');
 
@@ -69,6 +70,9 @@ apartmentRoutes.route('/addRoom/').post(function (req, res) {
         if (err) {
             console.log(err);
         }
+        else if (apartment === null) {
+            res.status(205).send('No such apartment');
+        }
         else {
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
@@ -77,7 +81,7 @@ apartmentRoutes.route('/addRoom/').post(function (req, res) {
                     return;
                 }
             }
-            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number });
+            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number, "room_bedroom_number": req.body.room_bedroom_number, "room_empty_bedrooms": req.body.room_bedroom_number });
             apartment.save();
             res.status(200).send('Room added');
             console.log('Room added');
@@ -113,24 +117,30 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
             console.log(err);
         }
         else {
-            for (var i = 0; i < apartment.apartment_rooms.length; i++) {
-                if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
-                    for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
-                        if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
-                            res.status(205).send('This trainee is already there');
-                            console.log('Could not add occupancy');
-                            return;
-                        }
-                    }
-                    apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() });
-                    apartment.save();
-                    res.status(200).send('Occupancy added');
-                    console.log('Occupancy added');
+            Apartment.find({ "apartment_rooms.room_occupancies.trainee_id": req.body.trainee_id }, function (err, apartment) {
+                if (apartment != []) {
+                    res.status(205).send('This trainee is already in a room');
+                    console.log('This trainee is already in a room');
                     return;
                 }
-            }
-            res.status(205).send('Room not found');
-            console.log('No such room');
+                for (var i = 0; i < apartment.apartment_rooms.length; i++) {
+                    if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
+                        if (apartment.apartment_rooms[i].room_empty_bedrooms - 1 < 0) {
+                            res.status(200).send('Room full');
+                            console.log('Room full');
+                            return;
+                        }
+                        apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": moment(), "occupancy_end": moment() });
+                        apartment.apartment_rooms[i].room_empty_bedrooms--;
+                        apartment.save();
+                        res.status(200).send('Occupancy added');
+                        console.log('Occupancy added');
+                        return;
+                    }
+                }
+                res.status(205).send('Room not found');
+                console.log('No such room');
+            });
         }
     });
 });
@@ -147,6 +157,7 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
                         if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
+                            apartment.apartment_rooms[i].room_empty_bedrooms++;
                             apartment.save();
                             res.status(200).send('Occupancy removed');
                             console.log('Occupancy removed');

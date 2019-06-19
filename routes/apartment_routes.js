@@ -4,7 +4,8 @@ var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
 let Occupancies = require('../models/occupancies.model');
-require('dotenv').config()
+let Room = require('../models/room.model');
+require('dotenv').config();
 var moment = require('moment');
 
 apartmentRoutes.route('/getAll/').get(function (req, res) {
@@ -69,18 +70,21 @@ apartmentRoutes.route('/addRoom/').post(function (req, res) {
         if (err) {
             console.log(err);
         }
+        else if (apartment === null) {
+            res.status(205).send('No such apartment');
+        }
         else {
-            for (var i = 0; i < apartment.apartment_rooms.length; i++) {		
-                if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {		
-                    res.status(205).send('Room already exists');		
-                    console.log('Room already exists');		
-                    return;		
-                }		
+            for (var i = 0; i < apartment.apartment_rooms.length; i++) {
+                if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
+                    res.status(205).send('Room already exists');
+                    console.log('Room already exists');
+                    return;
+                }
             }
-            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number });
+            apartment.apartment_rooms.push({ "room_name_number": req.body.room_name_number );
             apartment.save();
             res.status(200).send('Room added');
-            console.log('Room added');	
+            console.log('Room added');
         }
     });
 });
@@ -97,11 +101,11 @@ apartmentRoutes.route('/deleteRoom/').delete(function (req, res) {
                     apartment.apartment_rooms.splice(i, 1);
                     apartment.save();
                     res.status(200).send('Room removed');
-                    return;	
+                    return;
                 }
             }
             res.status(205).send('No such room');
-            console.log('No such room');	
+            console.log('No such room');
         }
     });
 });
@@ -112,11 +116,11 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
     let endDate = new Date(req.body.eyear, req.body.emonth, req.body.eday)
     console.log('Start date: ' + startDate);
     console.log('End date: ' + endDate);
-	if (startDate >= endDate){
-		//Start date must be before end date
-		res.status(205).send('The occupancy start date must be before the end date\nPlease validate your dates.');
-		return;
-	}
+    if (startDate >= endDate) {
+        //Start date must be before end date
+        res.status(205).send('The occupancy start date must be before the end date\nPlease validate your dates.');
+        return;
+    }
 
     Apartment.findById(req.body._id, function (err, apartment) {
         if (err) {
@@ -128,25 +132,25 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
                         occStart = apartment.apartment_rooms[i].room_occupancies[j].occupancy_start;
                         occEnd = apartment.apartment_rooms[i].room_occupancies[j].occupancy_end;
-                       // console.log("Test start: " + occStart);
-                       // console.log("Test start: " + occEnd);
-                        if(startDate >= occStart && startDate <= occEnd){
-                               // console.log("startDate >= occStart && startDate <= occEnd")
-                               // BOOKING STARTS IN MIDDLE OF OTHER APPOINTMENT
-				res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-                                return;
-                        }else if(endDate >= occStart && endDate <= occEnd){
-				// BOOKING ENDS IN MIDDLE OF OTHER APPOINTMENT
-                             //   console.log("endDate >= occStart && endDate <= occEnd")
-                                res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-                                return;
-                        }else if(startDate <= occStart && endDate >= occEnd){
-				// BOOKING STARTS *AND* ENDS IN MIDDLE OF OTHER APPOINTMENT
-                           //     console.log("startDate <= occStart && endDate >= occEnd")
-                                res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-                                return;
-                    }else{} 
-                        
+                        // console.log("Test start: " + occStart);
+                        // console.log("Test start: " + occEnd);
+                        if (startDate >= occStart && startDate <= occEnd) {
+                            // console.log("startDate >= occStart && startDate <= occEnd")
+                            // BOOKING STARTS IN MIDDLE OF OTHER APPOINTMENT
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else if (endDate >= occStart && endDate <= occEnd) {
+                            // BOOKING ENDS IN MIDDLE OF OTHER APPOINTMENT
+                            //   console.log("endDate >= occStart && endDate <= occEnd")
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else if (startDate <= occStart && endDate >= occEnd) {
+                            // BOOKING STARTS *AND* ENDS IN MIDDLE OF OTHER APPOINTMENT
+                            //     console.log("startDate <= occStart && endDate >= occEnd")
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else { }
+
                     }
                     apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": startDate, "occupancy_end": endDate });
                     apartment.save();
@@ -161,66 +165,65 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
     });
 });
 
-apartmentRoutes.route('/checkdates/').post(function(req,res){
-	    console.log('Adding occupancy to room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
-	    let startDate = new Date(req.body.syear, req.body.smonth, req.body.sday)
-	    let endDate = new Date(req.body.eyear, req.body.emonth, req.body.eday)
-	    console.log('Start date: ' + startDate);
-	    console.log('End date: ' + endDate);
+apartmentRoutes.route('/checkdates/').post(function (req, res) {
+    console.log('Adding occupancy to room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
+    let startDate = new Date(req.body.syear, req.body.smonth, req.body.sday)
+    let endDate = new Date(req.body.eyear, req.body.emonth, req.body.eday)
+    console.log('Start date: ' + startDate);
+    console.log('End date: ' + endDate);
     Apartment.findById(req.body._id, function (err, apartment) {
         if (err) {
             console.log(err);
         }
         else {
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
-                
-		console.log(apartment.apartment_rooms[i].room_name_number);
-		console.log(req.body.room_name_number);
-		console.log(apartment.apartment_rooms[i].room_name_number === req.body.room_name_number);
-		if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
+
+                console.log(apartment.apartment_rooms[i].room_name_number);
+                console.log(req.body.room_name_number);
+                console.log(apartment.apartment_rooms[i].room_name_number === req.body.room_name_number);
+                if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
-                    //   if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
-                           // res.status(205).send('This trainee is already there');
-                           // console.log('Could not add occupancy');
-                           // return;
-                    //    }
-		//	if (apartment.apartment_rooms[i].room_occupancies.length === 0){
-	//			res.status(200).send('Dates valid');
-	//			console.log('Dates Vaild');
-	//			return;
-	//		}
-			occStart = apartment.apartment_rooms[i].room_occupancies[j].occupancy_start;
+                        //   if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
+                        // res.status(205).send('This trainee is already there');
+                        // console.log('Could not add occupancy');
+                        // return;
+                        //    }
+                        //	if (apartment.apartment_rooms[i].room_occupancies.length === 0){
+                        //			res.status(200).send('Dates valid');
+                        //			console.log('Dates Vaild');
+                        //			return;
+                        //		}
+                        occStart = apartment.apartment_rooms[i].room_occupancies[j].occupancy_start;
                         occEnd = apartment.apartment_rooms[i].room_occupancies[j].occupancy_end;
-			console.log("Test start" + occStart);
-			console.log("Test start" + occEnd);
-			if(startDate >= occStart && startDate <= occEnd){
-				console.log("startDate >= occStart && startDate <= occEnd")
-          			res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-				return;
-			}else if(endDate >= occStart && endDate <= occEnd){
-			 	console.log("endDate >= occStart && endDate <= occEnd")
-                                res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-				return;
-			}else if(startDate <= occStart && endDate >= occEnd){
-                                console.log("startDate <= occStart && endDate >= occEnd")
-                                res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
-				return;
-                    }else{}
-               //     apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": startDate, "occupancy_end": endDate });
-               //     apartment.save();
-		    }
-		    res.status(200).send('Dates valid');
+                        console.log("Test start" + occStart);
+                        console.log("Test start" + occEnd);
+                        if (startDate >= occStart && startDate <= occEnd) {
+                            console.log("startDate >= occStart && startDate <= occEnd")
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else if (endDate >= occStart && endDate <= occEnd) {
+                            console.log("endDate >= occStart && endDate <= occEnd")
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else if (startDate <= occStart && endDate >= occEnd) {
+                            console.log("startDate <= occStart && endDate >= occEnd")
+                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+                            return;
+                        } else { }
+                        //     apartment.apartment_rooms[i].room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": startDate, "occupancy_end": endDate });
+                        //     apartment.save();
+                    }
+                    res.status(200).send('Dates valid');
                     console.log('Dates Vaild');
                     return;
-                
+
+                }
             }
-	    }
             res.status(205).send('Room not found');
             console.log('No such room');
         }
     });
 });
-
 
 apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
     console.log('Removing accupancy ' + req.body.trainee_id + ' from room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
@@ -236,62 +239,61 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
                             apartment.save();
                             res.status(200).send('Occupancy removed');
-                            console.log('Occupancy removed');		
-                            return;	
+                            console.log('Occupancy removed');
+                            return;
                         }
                     }
-                    res.status(205).send('Trainee not in that room');		
-                    console.log('Could not remove occupancy');		
-                    return;	
+                    res.status(205).send('Trainee not in that room');
+                    console.log('Could not remove occupancy');
+                    return;
                 }
             }
-            res.status(205).send('Room not found');		
-            console.log('No such room');	
+            res.status(205).send('Room not found');
+            console.log('No such room');
         }
     });
 });
 
 apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) {
-   let year=req.params.year;
-   let month=req.params.month;
-   let day=req.params.day;
-//	let response="";
-   let checkdate=new Date(year, month, day);
-	var apartList= function(callback){
-		Apartment.find().exec(function(err, aparts){
-//			aparts.reverse();
-			callback (err,aparts);
-		})
-	}
-	res.write(checkdate+"\n");
-   console.log(checkdate);
-//	apartList(function (err, aparts) {
-Apartment.find(function(err, aparts){
-	if (err) {
-      console.log(err);
-     }
-      else 
- {
-	 console.log(aparts.length);
-	 aparts.map(function(currentApartment, i){
-	//	console.log(currentApartment);
-	        console.log(currentApartment.apartment_name+", "+currentApartment.apartment_address+", "+currentApartment.apartment_region);
-		res.write(currentApartment.apartment_name+", "+currentApartment.apartment_address+", "+currentApartment.apartment_region+"\n");
-		 for (var j=0; j<currentApartment.apartment_rooms.length;j++) {
-			 console.log("Room " + currentApartment.apartment_rooms[j].room_name_number)
-			 res.write("Room " + currentApartment.apartment_rooms[j].room_name_number+"\n");
-		 	for (var k=0; k<currentApartment.apartment_rooms[j].room_occupancies.length; k++){
-//				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start);
-//				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end);
-				if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= checkdate && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= checkdate){
-					console.log(currentApartment.apartment_rooms[j].room_occupancies[k]);
-			                res.write(currentApartment.apartment_rooms[j].room_occupancies[k].toString()+"\n");
-				}
-			}
-		 }
-	 });
-   }  
-	});
+    let year = req.params.year;
+    let month = req.params.month;
+    let day = req.params.day;
+    //	let response="";
+    let checkdate = new Date(year, month, day);
+    var apartList = function (callback) {
+        Apartment.find().exec(function (err, aparts) {
+            //			aparts.reverse();
+            callback(err, aparts);
+        })
+    }
+    res.write(checkdate + "\n");
+    console.log(checkdate);
+    //	apartList(function (err, aparts) {
+    Apartment.find(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(aparts.length);
+            aparts.map(function (currentApartment, i) {
+                //	console.log(currentApartment);
+                console.log(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region);
+                res.write(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region + "\n");
+                for (var j = 0; j < currentApartment.apartment_rooms.length; j++) {
+                    console.log("Room " + currentApartment.apartment_rooms[j].room_name_number)
+                    res.write("Room " + currentApartment.apartment_rooms[j].room_name_number + "\n");
+                    for (var k = 0; k < currentApartment.apartment_rooms[j].room_occupancies.length; k++) {
+                        //				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start);
+                        //				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end);
+                        if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= checkdate && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= checkdate) {
+                            console.log(currentApartment.apartment_rooms[j].room_occupancies[k]);
+                            res.write(currentApartment.apartment_rooms[j].room_occupancies[k].toString() + "\n");
+                        }
+                    }
+                }
+            });
+        }
+    });
 });
 
 module.exports = apartmentRoutes;

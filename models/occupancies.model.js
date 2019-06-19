@@ -20,4 +20,3 @@ let OccupancySchema = new Schema({
 });
 
 module.exports = mongoose.model('Occupancy', OccupancySchema);
-

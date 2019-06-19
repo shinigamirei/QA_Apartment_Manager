@@ -265,7 +265,7 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
             callback(err, aparts);
         })
     }
-    res.write(checkdate + "\n");
+ //   res.write(checkdate + "\n");
     console.log(checkdate);
     //	apartList(function (err, aparts) {
     Apartment.find(function (err, aparts) {
@@ -290,6 +290,66 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
                         }
                     }
                 }
+            });
+        }
+    });
+});
+
+apartmentRoutes.route('/currentStatus/').get(function (req, res) {
+    let checkdate = moment();
+    
+    res.write(checkdate + "\n");
+    console.log(checkdate);
+    
+    Apartment.find(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(aparts.length);
+            aparts.map(function (currentApartment, i) {
+                //      console.log(currentApartment);
+                console.log(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region);
+                res.write(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region + "\n");
+                for (var j = 0; j < currentApartment.apartment_rooms.length; j++) {
+		   nextdate=new Date (1970, 0, 1);
+		   voiddate=nextdate;
+		//    nextdate=0;
+	            currocc=0;
+                    console.log("Room " + currentApartment.apartment_rooms[j].room_name_number)
+                    res.write("Room " + currentApartment.apartment_rooms[j].room_name_number + "\n");
+                    for (var k = 0; k < currentApartment.apartment_rooms[j].room_occupancies.length; k++) {
+//			    console.log(nextdate);
+                        //                              console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start);
+                        //                              console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end);
+                        if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= checkdate && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= checkdate) {
+                            console.log("Apartment occupied");
+                            res.write("Room occupied\nOccupancy scheduled to end on " + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY')+"\n");
+			    currocc=1;
+				break;
+			}else if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end < checkdate){
+			}else if(nextdate==voiddate){
+//				console.log("turn1");
+				nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
+			}else{
+				if(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start< nextdate){
+//				console.log("turn2");
+				nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
+				}
+			}
+
+                    }
+	            if (currocc == 1){}
+		    else if (nextdate > checkdate){
+                        console.log("Room available");
+                        res.write("Room available\nNext occupancy scheduled to begin on " + moment(nextdate).format('MMMM Do YYYY') +"\n");
+                    }else {
+                        console.log("Room available");
+                        res.write("Room available\nNo further occupancies scheduled\n");
+                    }
+		res.write("===\n")
+                }
+	    res.write("================================\n")
             });
         }
     });

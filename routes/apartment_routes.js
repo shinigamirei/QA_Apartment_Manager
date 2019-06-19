@@ -37,6 +37,22 @@ apartmentRoutes.route('/getById/:id').get(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
+	let region = req.params.region;
+	console.log('Looked up apartment by region ' + region);
+	Apartment.find({"apartment_region": region}).exec(function (err, apartment) {
+		if (err) {
+			console.log(err);
+		}
+		else {
+			console.log(apartment);
+			res.json(apartment);
+			console.log('Returned apartments');
+		}		
+	});
+});
+
+
 apartmentRoutes.route('/create/').post(function (req, res) {
     console.log('Attempting to create an apartment');
     console.log(req.body);

@@ -4,14 +4,14 @@ const bcrypt = require('bcrypt');
 let OccupancySchema = require('../models/occupancies.model');
 
 let RoomSchema = new Schema({
-    room_bedroom_number: {
-        type: Number,
-        required: true
-    },
-    room_empty_bedrooms: {
-        type: Number,
-        required: true
-    },
+//    room_bedroom_number: {
+//        type: Number,
+//        required: true
+//    },
+//    room_empty_bedrooms: {
+//        type: Number,
+//        required: true
+//    },
     room_name_number: {
         type: String,
         required: true

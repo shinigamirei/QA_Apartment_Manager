@@ -1,0 +1,366 @@
+Adding occupancy
+POSTed to /addOccupancy/ below body:
+
+[{"key":"room_name_number","value":"405","description":"","type":"text","enabled":true},{"key":"_id","value":"5d025ab6ae4ff14faa579fb5","description":"","type":"text","enabled":true},{"key":"syear","value":"2019","description":"","type":"text","enabled":true},{"key":"smonth","value":"9","description":"","type":"text","enabled":true},{"key":"sday","value":"11","description":"","type":"text","enabled":true},{"key":"eyear","value":"2019","description":"","type":"text","enabled":true},{"key":"emonth","value":"11","description":"","type":"text","enabled":true},{"key":"eday","value":"12","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"19","description":"","type":"text","enabled":true}]
+
+Output:
+Occupancy added
+
+Result:
+PASS
+
+================================
+
+Repeat occupancy:
+POSTed to /addOccupancy/ below body:
+
+[{"key":"room_name_number","value":"405","description":"","type":"text","enabled":true},{"key":"_id","value":"5d025ab6ae4ff14faa579fb5","description":"","type":"text","enabled":true},{"key":"syear","value":"2019","description":"","type":"text","enabled":true},{"key":"smonth","value":"9","description":"","type":"text","enabled":true},{"key":"sday","value":"11","description":"","type":"text","enabled":true},{"key":"eyear","value":"2019","description":"","type":"text","enabled":true},{"key":"emonth","value":"11","description":"","type":"text","enabled":true},{"key":"eday","value":"12","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"19","description":"","type":"text","enabled":true}]
+
+Note:
+Body was same as previous occupancy - Should not be accepted
+
+Output:
+There is a booking which contradicts your dates.
+Please verify your input.
+
+Result:
+PASS
+
+================================
+
+Occupancy started before previous occupancy ended:
+
+POSTed to /addOccupancy/ below body:
+
+[{"key":"room_name_number","value":"405","description":"","type":"text","enabled":true},{"key":"_id","value":"5d025ab6ae4ff14faa579fb5","description":"","type":"text","enabled":true},{"key":"syear","value":"2019","description":"","type":"text","enabled":true},{"key":"smonth","value":"8","description":"","type":"text","enabled":true},{"key":"sday","value":"11","description":"","type":"text","enabled":true},{"key":"eyear","value":"2019","description":"","type":"text","enabled":true},{"key":"emonth","value":"10","description":"","type":"text","enabled":true},{"key":"eday","value":"12","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"19","description":"","type":"text","enabled":true}]
+
+Note:
+Body overlaps occupancy in test 1 - Should not be accepted
+
+Output:
+There is a booking which contradicts your dates.
+Please verify your input.
+
+Result:
+PASS
+
+================================
+
+Occupancy ends after previous occupancy started:
+
+POSTed to /addOccupancy/ below body:
+
+[{"key":"room_name_number","value":"405","description":"","type":"text","enabled":true},{"key":"_id","value":"5d025ab6ae4ff14faa579fb5","description":"","type":"text","enabled":true},{"key":"syear","value":"2019","description":"","type":"text","enabled":true},{"key":"smonth","value":"10","description":"","type":"text","enabled":true},{"key":"sday","value":"11","description":"","type":"text","enabled":true},{"key":"eyear","value":"2019","description":"","type":"text","enabled":true},{"key":"emonth","value":"11","description":"","type":"text","enabled":true},{"key":"eday","value":"22","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"19","description":"","type":"text","enabled":true}]
+
+Note:
+Body overlaps occupancy in test 1 - Should not be accepted
+
+Output:
+There is a booking which contradicts your dates.
+Please verify your input.
+
+Result:
+PASS
+
+
+================================
+
+Occupancy started previous occupancy started and ends after previous occupancy ended:
+
+POSTed to /addOccupancy/ below body:
+
+[{"key":"room_name_number","value":"405","description":"","type":"text","enabled":true},{"key":"_id","value":"5d025ab6ae4ff14faa579fb5","description":"","type":"text","enabled":true},{"key":"syear","value":"2019","description":"","type":"text","enabled":true},{"key":"smonth","value":"01","description":"","type":"text","enabled":true},{"key":"sday","value":"01","description":"","type":"text","enabled":true},{"key":"eyear","value":"2020","description":"","type":"text","enabled":true},{"key":"emonth","value":"01","description":"","type":"text","enabled":true},{"key":"eday","value":"01","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"19","description":"","type":"text","enabled":true}]
+Note:
+Body overlaps occupancy in test 1 - Should not be accepted
+
+Output:
+There is a booking which contradicts your dates.
+Please verify your input.
+
+Result:
+PASS
+
+================================
+
+Get from date
+
+GET /getFromDate/2019/05/19:
+
+Output:
+Allison Block, 13 Gosford Road, Manchester
+Room 404
+{ _id: 5d0a03b3ac83142558619397,
+  trainee_id: '15',
+  occupancy_start: 2019-04-10T23:00:00.000Z,
+  occupancy_end: 2019-11-20T00:00:00.000Z }
+Room 405
+Beddor House, 13 Dawson Way, Brighton
+Room 404
+{ _id: 5d0a3eb8fe2e0c24f0df1a14,
+  trainee_id: '19',
+  occupancy_start: 2019-06-11T23:00:00.000Z,
+  occupancy_end: 2019-07-11T23:00:00.000Z }
+Room 405
+8 St Vincent's, 13 Lord Street, Brighton
+Room A
+Room B
+Room D
+Room E
+
+
+Result:
+Gets a list of all occupancies on this date. Could be prettier.
+
+================================
+
+Get current status
+
+GET /currentStatus/
+
+Output:
+
+Allison Block, 13 Gosford Road, Manchester
+Room 404
+Room occupied
+Occupancy scheduled to end on November 20th 2019
+===
+Room 405
+Room available
+No further occupancies scheduled
+===
+================================
+Beddor House, 13 Dawson Way, Brighton
+Room 404
+Room occupied
+Occupancy scheduled to end on July 12th 2019
+===
+Room 405
+Room available
+Next occupancy scheduled to begin on October 11th 2019
+===
+================================
+8 St Vincent's, 13 Lord Street, Brighton
+Room A
+Room available
+No further occupancies scheduled
+===
+Room B
+Room available
+No further occupancies scheduled
+===
+Room D
+Room available
+Next occupancy scheduled to begin on July 3rd 2019
+===
+Room E
+Room available
+No further occupancies scheduled
+===
+================================
+
+Notes: 404 Allison Block has an active occupancy and one that follows
+405 Allison Block is empty
+404 Beddor House has a current occupancy, which in the current array is after previous not-current occupancies
+405 Beddor House has a future occupancy
+8A St Vincent has a past occupancy, but none in the future  
+8B St Vincent has a past occupancy, but none in the future  
+8C St Vincent has a future occupancy
+8D St Vincent has a past occupancy, but none in the future  
+
+Result: Meets expectations.
+
+================================
+
+Get time for cleaning
+
+GET /cleaningAvailability
+
+Allison Block, 13 Gosford Road, Manchester
+Room 404
+Room occupied
+Occupancy scheduled to end on November 20th 2019
+Available for cleaning in 152 days.
+No further occupancies scheduled.
+===
+Room 405
+Room available
+No further occupancies scheduled
+===
+================================
+Beddor House, 13 Dawson Way, Brighton
+Room 404
+Room occupied
+Occupancy scheduled to end on July 12th 2019
+Available for cleaning in 21 days.
+Next occupancy scheduled to begin on July 13th 2019
+Room will be available for cleaning for 1 days.
+===
+Room 405
+Room available
+Next occupancy scheduled to begin on October 11th 2019
+Room will be available for cleaning for 112 days.
+===
+================================
+8 St Vincent's, 13 Lord Street, Brighton
+Room A
+Room available
+No further occupancies scheduled
+===
+Room B
+Room available
+No further occupancies scheduled
+===
+Room D
+Room available
+Next occupancy scheduled to begin on July 3rd 2019
+Room will be available for cleaning for 12 days.
+===
+Room E
+Room available
+No further occupancies scheduled
+===
+================================
+
+Result: Meets expectations. May render the previous page redundant.
+
+================================
+
+Delete room:
+
+POSTed (DELETE) to /deleteRoom below body:
+
+[{"key":"room_name_number","value":"E","description":"","type":"text","enabled":true},{"key":"_id","value":"5d026ddeb8e18257f5f8a10b","description":"","type":"text","enabled":true}]
+
+Output:
+Room removed
+
+Result:
+PASS: room E is not in the output of /getAll
+
+================================
+
+Add room:
+
+POSTed to /addRoom below body:
+
+[{"key":"room_name_number","value":"E","description":"","type":"text","enabled":true},{"key":"_id","value":"5d026ddeb8e18257f5f8a10b","description":"","type":"text","enabled":true}]
+
+Output:
+Room added
+PASS: room E is in the output of /getAll
+
+==================================
+
+Remove occupancy:
+
+POSTed (DELETE) to /deleteOccupancy below body:
+
+[{"key":"room_name_number","value":"D","description":"","type":"text","enabled":true},{"key":"_id","value":"5d026ddeb8e18257f5f8a10b","description":"","type":"text","enabled":true},{"key":"trainee_id","value":"38","description":"","type":"text","enabled":true},{"key":"occ_id","value":"5d08bd351d11611b384a0cae","description":"","type":"text","enabled":true},{"key":"sday","value":"01","description":"","type":"text","enabled":false}]
+
+Output: Occupancy removed
+
+PASS: The occupancy is removed.
+
+=================================
+
+Get by region
+
+GET getByRegion/Brighton:
+
+OUTPUT:
+[
+    {
+        "_id": "5d025ab6ae4ff14faa579fb5",
+        "apartment_name": "Beddor House",
+        "apartment_address": "13 Dawson Way",
+        "apartment_region": "Brighton",
+        "apartment_rooms": [
+            {
+                "room_occupancies": [
+                    {
+                        "trainee_id": "33",
+                        "occupancy_start": "2019-07-12T23:00:00.000Z",
+                        "occupancy_end": "2019-09-10T23:00:00.000Z"
+                    },
+                    {
+                        "trainee_id": "31",
+                        "occupancy_start": "2018-07-12T23:00:00.000Z",
+                        "occupancy_end": "2018-09-10T23:00:00.000Z"
+                    },
+                    {
+                        "_id": "5d08f5caaf189547f4de462a",
+                        "trainee_id": "20",
+                        "occupancy_start": "2019-11-15T00:00:00.000Z",
+                        "occupancy_end": "2019-11-20T00:00:00.000Z"
+                    },
+                    {
+                        "_id": "5d0a3eb8fe2e0c24f0df1a14",
+                        "trainee_id": "19",
+                        "occupancy_start": "2019-06-11T23:00:00.000Z",
+                        "occupancy_end": "2019-07-11T23:00:00.000Z"
+                    }
+                ],
+                "room_name_number": "404"
+            },
+            {
+                "room_occupancies": [
+                    {
+                        "trainee_id": "32",
+                        "occupancy_start": "2017-07-12T23:00:00.000Z",
+                        "occupancy_end": "2017-09-10T23:00:00.000Z"
+                    },
+                    {
+                        "_id": "5d0b91ea6a64da30a8f1c11b",
+                        "trainee_id": "19",
+                        "occupancy_start": "2019-10-10T23:00:00.000Z",
+                        "occupancy_end": "2019-12-12T00:00:00.000Z"
+                    }
+                ],
+                "room_name_number": "405"
+            }
+        ],
+        "__v": 3
+    },
+    {
+        "_id": "5d026ddeb8e18257f5f8a10b",
+        "apartment_name": "8 St Vincent's",
+        "apartment_address": "13 Lord Street",
+        "apartment_region": "Brighton",
+        "apartment_rooms": [
+            {
+                "room_occupancies": [
+                    {
+                        "_id": "5d08e672c3d4c30848d6fb1d",
+                        "trainee_id": "20",
+                        "occupancy_start": "2015-08-10T23:00:00.000Z",
+                        "occupancy_end": "2015-08-31T23:00:00.000Z"
+                    }
+                ],
+                "room_name_number": "A"
+            },
+            {
+                "room_occupancies": [
+                    {
+                        "_id": "5d08e4897b05a92a2cf8d588",
+                        "trainee_id": "20",
+                        "occupancy_start": "2015-08-10T23:00:00.000Z",
+                        "occupancy_end": "2015-08-31T23:00:00.000Z"
+                    }
+                ],
+                "room_name_number": "B"
+            },
+            {
+                "room_occupancies": [],
+                "room_name_number": "D"
+            },
+            {
+                "room_occupancies": [],
+                "_id": "5d0b9f2a6a64da30a8f1c11c",
+                "room_name_number": "E"
+            }
+        ],
+        "__v": 7
+    }
+]
+
+Result: PASS

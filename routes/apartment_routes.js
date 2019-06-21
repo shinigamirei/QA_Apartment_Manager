@@ -38,18 +38,18 @@ apartmentRoutes.route('/getById/:id').get(function (req, res) {
 });
 
 apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
-	let region = req.params.region;
-	console.log('Looked up apartment by region ' + region);
-	Apartment.find({"apartment_region": region}).exec(function (err, apartment) {
-		if (err) {
-			console.log(err);
-		}
-		else {
-			console.log(apartment);
-			res.json(apartment);
-			console.log('Returned apartments');
-		}		
-	});
+    let region = req.params.region;
+    console.log('Looked up apartment by region ' + region);
+    Apartment.find({ "apartment_region": region }).exec(function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(apartment);
+            res.json(apartment);
+            console.log('Returned apartments');
+        }
+    });
 });
 
 
@@ -241,9 +241,9 @@ apartmentRoutes.route('/checkdates/').post(function (req, res) {
 });
 
 apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
-	console.log('Removing occupancy ' + req.body.trainee_id + ' from room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
-	occ_id=req.body.occ_id;
-	Apartment.findById(req.body._id, function (err, apartment) {
+    console.log('Removing occupancy ' + req.body.occ_id + ' from room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
+    occ_id = req.body.occ_id;
+    Apartment.findById(req.body._id, function (err, apartment) {
         if (err) {
             console.log(err);
         }
@@ -251,8 +251,8 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
-                      //  console.log(apartment.apartment_rooms[i].room_occupancies[j]._id + "  ===   "+ occ_id);
-			if (apartment.apartment_rooms[i].room_occupancies[j]._id.equals(occ_id)) {
+                        //  console.log(apartment.apartment_rooms[i].room_occupancies[j]._id + "  ===   "+ occ_id);
+                        if (apartment.apartment_rooms[i].room_occupancies[j]._id.equals(occ_id)) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
                             apartment.save();
                             res.status(200).send('Occupancy removed');
@@ -283,7 +283,7 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
             callback(err, aparts);
         })
     }
- //   res.write(checkdate + "\n");
+    //   res.write(checkdate + "\n");
     console.log(checkdate);
     //	apartList(function (err, aparts) {
     Apartment.find(function (err, aparts) {
@@ -315,10 +315,10 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
 
 apartmentRoutes.route('/currentStatus/').get(function (req, res) {
     let checkdate = moment();
-    
+
     res.write(checkdate + "\n");
     console.log(checkdate);
-    
+
     Apartment.find(function (err, aparts) {
         if (err) {
             console.log(err);
@@ -330,45 +330,58 @@ apartmentRoutes.route('/currentStatus/').get(function (req, res) {
                 console.log(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region);
                 res.write(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region + "\n");
                 for (var j = 0; j < currentApartment.apartment_rooms.length; j++) {
-		   nextdate=new Date (1970, 0, 1);
-		   voiddate=nextdate;
-		//    nextdate=0;
-	            currocc=0;
+                    nextdate = new Date(1970, 0, 1);
+                    voiddate = nextdate;
+                    //    nextdate=0;
+                    currocc = 0;
                     console.log("Room " + currentApartment.apartment_rooms[j].room_name_number)
                     res.write("Room " + currentApartment.apartment_rooms[j].room_name_number + "\n");
                     for (var k = 0; k < currentApartment.apartment_rooms[j].room_occupancies.length; k++) {
-//			    console.log(nextdate);
+                        //			    console.log(nextdate);
                         //                              console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start);
                         //                              console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end);
                         if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= checkdate && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= checkdate) {
                             console.log("Apartment occupied");
-                            res.write("Room occupied\nOccupancy scheduled to end on " + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY')+"\n");
-			    currocc=1;
-				break;
-			}else if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end < checkdate){
-			}else if(nextdate==voiddate){
-//				console.log("turn1");
-				nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
-			}else{
-				if(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start< nextdate){
-//				console.log("turn2");
-				nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
-				}
-			}
+                            res.write("Room occupied\nOccupancy scheduled to end on " + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY') + "\n");
+                            currocc = 1;
+                            break;
+                        } else if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end < checkdate) {
+                        } else if (nextdate == voiddate) {
+                            //				console.log("turn1");
+                            nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
+                        } else {
+                            if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start < nextdate) {
+                                //				console.log("turn2");
+                                nextdate = currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start;
+                            }
+                        }
 
                     }
-	            if (currocc == 1){}
-		    else if (nextdate > checkdate){
+                    if (currocc == 1) { }
+                    else if (nextdate > checkdate) {
                         console.log("Room available");
-                        res.write("Room available\nNext occupancy scheduled to begin on " + moment(nextdate).format('MMMM Do YYYY') +"\n");
-                    }else {
+                        res.write("Room available\nNext occupancy scheduled to begin on " + moment(nextdate).format('MMMM Do YYYY') + "\n");
+                    } else {
                         console.log("Room available");
                         res.write("Room available\nNo further occupancies scheduled\n");
                     }
-		res.write("===\n")
+                    res.write("===\n")
                 }
-	    res.write("================================\n")
+                res.write("================================\n")
             });
+        }
+    });
+});
+
+
+apartmentRoutes.route('/getOccupancyInfo/:trainee_id').get(function (req, res) {
+    Apartment.find({ 'apartment_rooms.room_occupancies.trainee_id': req.params.trainee_id }, function (err, apartment) {
+        if (apartment.length != 0) {
+            res.status(200).json(apartment);
+            return;
+        }
+        else {
+            res.status(205).send('Trainee not found');
         }
     });
 });

@@ -94,19 +94,27 @@ describe('apartment route tests', () => {
                     "_id": _id, "room_name_number": "1", "trainee_id": "1", "syear": "2019", "smonth": "06", "sday": "03", "eyear": "2019", "emonth": "08", "eday": "11"
                 }).end((err, res) => {
                     if (res.status == '200') {
-                        chai.request('http://localhost:4000').delete('/apartment/deleteOccupancy').set('content-type', 'application/json').send({ "_id": _id, "room_name_number": "1", "trainee_id": "1" }).end((err, res) => {
+                        chai.request('http://localhost:4000').get('/apartment/getOccupancyInfo/1').end((err, res) => {
                             if (res.status == '200') {
-                                chai.request('http://localhost:4000').delete('/apartment/deleteRoom').set('content-type', 'application/json').send({ "_id": _id, "room_name_number": "1" }).end((err, res) => {
+                                var occ_id = res.body[0].apartment_rooms[0].room_occupancies[0]._id;
+                                chai.request('http://localhost:4000').delete('/apartment/deleteOccupancy').set('content-type', 'application/json').send({ "_id": _id, "room_name_number": "1", "occ_id": occ_id }).end((err, res) => {
                                     if (res.status == '200') {
-                                        done();
+                                        chai.request('http://localhost:4000').delete('/apartment/deleteRoom').set('content-type', 'application/json').send({ "_id": _id, "room_name_number": "1" }).end((err, res) => {
+                                            if (res.status == '200') {
+                                                done();
+                                            }
+                                            else {
+                                                console.log(`Expected 200 when deleting room but got ${res}. error is ${err}`);
+                                            }
+                                        });
                                     }
                                     else {
-                                        console.log(`Expected 200 when deleting room but got ${res}. error is ${err}`);
+                                        console.log(`Expected 200 when deleting occupancy but got ${res}. error is ${err}`);
                                     }
                                 });
                             }
                             else {
-                                console.log(`Expected 200 when deleting occupancy but got ${res}. error is ${err}`);
+                                console.log(`Expected 200 when requesting occupancy info but got ${res}. error is ${err}`);
                             }
                         });
                     }
@@ -117,6 +125,36 @@ describe('apartment route tests', () => {
             }
             else {
                 console.log(`Expected 200 when adding room but got ${res}. error is ${err}`);
+            }
+        });
+    });
+    it('get all', (done) => {
+        chai.request('http://localhost:4000').get('/apartment/getAll').end((err, res) => {
+            if (res.status == '200') {
+                done();
+            }
+            else {
+                console.log(`Expected 200 but got ${res}. error is ${err}`);
+            }
+        });
+    });
+    it('get by id', (done) => {
+        chai.request('http://localhost:4000').get('/apartment/getById/' + _id).end((err, res) => {
+            if (res.status == '200') {
+                done();
+            }
+            else {
+                console.log(`Expected 200 but got ${res}. error is ${err}`);
+            }
+        });
+    });
+    it('get by region', (done) => {
+        chai.request('http://localhost:4000').get('/apartment/getByRegion/' + 'Manchester').end((err, res) => {
+            if (res.status == '200') {
+                done();
+            }
+            else {
+                console.log(`Expected 200 but got ${res}. error is ${err}`);
             }
         });
     });

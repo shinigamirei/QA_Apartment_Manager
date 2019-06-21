@@ -241,7 +241,8 @@ apartmentRoutes.route('/checkdates/').post(function (req, res) {
 });
 
 apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
-    console.log('Removing accupancy ' + req.body.trainee_id + ' from room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
+    console.log('Removing occupancy ' + req.body.occ_id + ' from room ' + req.body.room_name_number + ' in apartment ' + req.body._id);
+    occ_id = req.body.occ_id;
     Apartment.findById(req.body._id, function (err, apartment) {
         if (err) {
             console.log(err);
@@ -250,7 +251,8 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
             for (var i = 0; i < apartment.apartment_rooms.length; i++) {
                 if (apartment.apartment_rooms[i].room_name_number === req.body.room_name_number) {
                     for (var j = 0; j < apartment.apartment_rooms[i].room_occupancies.length; j++) {
-                        if (apartment.apartment_rooms[i].room_occupancies[j].trainee_id === req.body.trainee_id) {
+                        //  console.log(apartment.apartment_rooms[i].room_occupancies[j]._id + "  ===   "+ occ_id);
+                        if (apartment.apartment_rooms[i].room_occupancies[j]._id.equals(occ_id)) {
                             apartment.apartment_rooms[i].room_occupancies.splice(j, 1);
                             apartment.save();
                             res.status(200).send('Occupancy removed');

@@ -375,12 +375,37 @@ apartmentRoutes.route('/currentStatus/').get(function (req, res) {
 
 
 apartmentRoutes.route('/getOccupancyInfo/:trainee_id').get(function (req, res) {
-    Apartment.find({ 'apartment_rooms.room_occupancies.trainee_id': req.params.trainee_id }, function (err, apartment) {
-        if (apartment.length != 0) {
-            res.status(200).json(apartment);
-            return;
-        }
+	currentTime=moment();
+	result="";
+	Apartment.find({ 'apartment_rooms.room_occupancies.trainee_id': req.params.trainee_id }, function (err, apartment){
+	if (apartment.length != 0) {
+	   apartment.map(function(currentApartment,i){
+		   for (var j=0; j < currentApartment.apartment_rooms.length;j++){
+			for (var k = 0; k < currentApartment.apartment_rooms[j].room_occupancies.length; k++) {
+			      if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= currentTime && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= currentTime && currentApartment.apartment_rooms[j].room_occupancies[k].trainee_id == req.params.trainee_id){
+	//			      console.log("1")
+				      //result="[{\"apartment_name\": \""+currentApartment.apartment_name+"\","
+				      //result=result+"\"apartment_address\": \""+currentApartment.apartment_address+"\","
+				      //result=result+"\"apartment_region\": \""+currentApartment.apartment_region+"\""
+				      //result=result+"}]"
+				      result="h"
+				      //res.status(200).json(result);
+				     // res.status(200).json(currentApartment);
+				      res.status(200).json({apartment_name: currentApartment.apartment_name, apartment_address: currentApartment.apartment_address, apartment_region: currentApartment.apartment_region, apartment_rooms: [{room_name_number: currentApartment.apartment_rooms[j].room_name_number, room_occupancies:[{trainee_id:currentApartment.apartment_rooms[j].room_occupancies[k].trainee_id,occupancy_start:currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start,occupancy_end:currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end }]}]});
+				      return;
+			      }	
+			}
+		   }
+	    
+           });
+            if(result == ""){
+//                    console.log("2");
+                res.status(205).send('Trainee not found');
+                    return;
+	    }
+	}
         else {
+//		console.log("3");
             res.status(205).send('Trainee not found');
         }
     });
@@ -422,7 +447,7 @@ apartmentRoutes.route('/cleaningAvailability/').get(function (req, res) {
 							//var diffDays = a.diff(b, 'days');
                           				//res.write("Room occupied\nOccupancy scheduled to end on " + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY')+"\n"+"Available for cleaning in " + diffDays + " days.");
                             currocc=1;
-                                break;
+ //                               break;
                         }else if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end < checkdate){
                         }else if(nextdate==voiddate){
 //                              console.log("turn1");
@@ -439,7 +464,7 @@ apartmentRoutes.route('/cleaningAvailability/').get(function (req, res) {
 			    var b = checkdate;
 			    //console.log(a.format('MMMM Do YYYY')+"  "+b.format('MMMM Do YYYY'));
 			    var diffDays = a.diff(b, 'days');
-			    res.write("Room occupied\nOccupancy scheduled to end on " + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY')+"\n"+"Available for cleaning in " + diffDays + " days.\n")
+			    res.write("Room occupied\nOccupancy scheduled to end on " + moment(occend).format('MMMM Do YYYY')+"\n"+"Available for cleaning in " + diffDays + " days.\n")
 		    	if (nextdate > checkdate) {
 				var a = moment(nextdate);
 				var b = moment(occend);

@@ -276,6 +276,7 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
     let month = req.params.month;
     let day = req.params.day;
     //	let response="";
+    console.log(req.params.year  + "/" + req.params.month + "/" + req.params.day);
     let checkdate = new Date(year, month, day);
 	json_res_GFL="";
     var apartList = function (callback) {
@@ -293,12 +294,7 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
         }
         else {
             console.log(aparts.length);
-            aparts.map(function (currentApartment, i) {
-			if (json_res_GFL==""){
-                json_res_GFL="[{";
-            }else{
-                json_res_GFL=json_res_GFL + "},{"
-            } 
+            aparts.map(function (currentApartment,i){
                 //	console.log(currentApartment);
                 console.log(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region);
           //      res.write(currentApartment.apartment_name + ", " + currentApartment.apartment_address + ", " + currentApartment.apartment_region + "\n");
@@ -309,14 +305,21 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
                         //				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start);
                         //				console.log(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end);
                         if (currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start <= checkdate && currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end >= checkdate) {
-                            console.log(currentApartment.apartment_rooms[j].room_occupancies[k]);
+                           	if (json_res_GFL==""){
+                        		json_res_GFL="[{";
+                		}else{
+                        		json_res_GFL=json_res_GFL + "},{"
+                		}
+				console.log(currentApartment.apartment_rooms[j].room_occupancies[k]);
 							json_res_GFL = json_res_GFL + "\"apartment_name\": \"" + currentApartment.apartment_name + "\", \"apartment_address\": \"" + currentApartment.apartment_address + "\", \"apartment_region\": \""+ currentApartment.apartment_region+ "\", \"room_name\": \""+ currentApartment.apartment_rooms[j].room_name_number + "\", \"trainee_id\": \"" + currentApartment.apartment_rooms[j].room_occupancies[k].trainee_id + "\", \"occupancy_start\": \"" + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_start).format('MMMM Do YYYY') + "\", \"occupancy_end\": \"" + moment(currentApartment.apartment_rooms[j].room_occupancies[k].occupancy_end).format('MMMM Do YYYY') +"\"";
            //                 res.write(currentApartment.apartment_rooms[j].room_occupancies[k].toString() + "\n");
                         }
                     }
                 }
             });
-			
+    if (json_res_GFL==""){
+          json_res_GFL="[{";
+    }		
     json_res_GFL=json_res_GFL+"}]";
 	console.log(json_res_GFL);
     json_json_res_GFL=JSON.parse(json_res_GFL);

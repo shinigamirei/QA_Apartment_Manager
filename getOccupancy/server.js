@@ -13,7 +13,7 @@ app.use(function (req, res, next) {
 
 require('dotenv').config()
 
-const PORT = 4000;
+const PORT = 2351;
 var cookieParser = require('cookie-parser');
 
 app.use(cors());
@@ -32,4 +32,5 @@ app.use('/apartment', require('./routes/apartment_routes.js'));
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
 })
+
 

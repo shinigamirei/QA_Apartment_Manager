@@ -1,0 +1,24 @@
+getApartment -port 2303
+-getAll
+-getById
+-getByRegion
+
+apartmentManagement -port 2302
+-create
+-delete
+-addRoom
+-deleteRoom
+
+getOccupancy -port 2351
+-getOccupancyInfo
+-cleaningAvailability
+
+checkOccupancy -port 3290
+-checkDates
+-getFromDate
+-currentStatus
+
+occupancyManagement -port 4000
+-addOccupancy
+-deleteOccupancy
+-changeEndOccupancy

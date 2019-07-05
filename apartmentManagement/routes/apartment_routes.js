@@ -82,4 +82,34 @@ apartmentRoutes.route('/deleteRoom/').delete(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/update').put(function (req, res) {
+    console.log('Attempting to update an apartment ' + req.body._id);
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else if (apartment === null) {
+            res.status(205).send('No such apartment');
+        }
+        else {
+            if (req.body.apartment_name !== '') {
+                apartment.apartment_name = req.body.apartment_name;
+            }
+            if (req.body.apartment_address !== '') {
+                apartment.apartment_address = req.body.apartment_address;
+            }
+            if (req.body.apartment_region !== '') {
+                apartment.apartment_region = req.body.apartment_region;
+            }
+            apartment.save().then(apartment => {
+                res.status(200).send('Apartment updated');
+                console.log('Updated an apartment ' + apartment._id);
+            }).catch(err => {
+                res.status(205).send('Updating an apartment did not work');
+                console.log(err);
+            });
+        }
+    });
+});
+
 module.exports = apartmentRoutes;

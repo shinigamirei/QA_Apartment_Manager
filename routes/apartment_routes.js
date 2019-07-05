@@ -152,14 +152,17 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
                         // console.log("Test start: " + occEnd);
                         if (startDate >= occStart && startDate <= occEnd) {
                             // BOOKING STARTS IN MIDDLE OF OTHER APPOINTMENT
+							console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
                             res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else if (endDate >= occStart && endDate <= occEnd) {
                             // BOOKING ENDS IN MIDDLE OF OTHER APPOINTMENT
+							console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
                             res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else if (startDate <= occStart && endDate >= occEnd) {
                             // BOOKING STARTS *AND* ENDS IN MIDDLE OF OTHER APPOINTMENT
+							console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
                             res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else { }
@@ -302,11 +305,13 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
                         if(moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
                             moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)) {
                                 objectToReturn.push({
+									_id: currentApartment._id,
                                     apartment_name: currentApartment.apartment_name, 
                                     apartment_address: currentApartment.apartment_address,
                                     apartment_region: currentApartment.apartment_region,
                                     room_name: apartmentRoom.room_name_number,
                                     trainee_id: roomOccupancy.trainee_id,
+									occ_id: roomOccupancy._id,
                                     occupancy_start: moment(roomOccupancy.occupancy_start).format('MMMM Do YYYY'),
                                     occupancy_end: moment(roomOccupancy.occupancy_end).format('MMMM Do YYYY')
                                 });

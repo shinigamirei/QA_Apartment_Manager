@@ -36,11 +36,13 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
                         if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
                             moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)) {
                             objectToReturn.push({
+				_id: currentApartment._id,
                                 apartment_name: currentApartment.apartment_name,
                                 apartment_address: currentApartment.apartment_address,
                                 apartment_region: currentApartment.apartment_region,
                                 room_name: apartmentRoom.room_name_number,
                                 trainee_id: roomOccupancy.trainee_id,
+				occ_id: roomOccupancy._id,
                                 occupancy_start: moment(roomOccupancy.occupancy_start).format('MMMM Do YYYY'),
                                 occupancy_end: moment(roomOccupancy.occupancy_end).format('MMMM Do YYYY')
                             });

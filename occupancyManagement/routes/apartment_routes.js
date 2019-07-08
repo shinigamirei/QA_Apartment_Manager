@@ -34,14 +34,17 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
                         // console.log("Test start: " + occEnd);
                         if (startDate >= occStart && startDate <= occEnd) {
                             // BOOKING STARTS IN MIDDLE OF OTHER APPOINTMENT
-                            res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
+			    console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
+			    res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else if (endDate >= occStart && endDate <= occEnd) {
                             // BOOKING ENDS IN MIDDLE OF OTHER APPOINTMENT
+		 	    console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
                             res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else if (startDate <= occStart && endDate >= occEnd) {
                             // BOOKING STARTS *AND* ENDS IN MIDDLE OF OTHER APPOINTMENT
+			    console.log('There is a booking which contradicts your dates.\nPlease verify your input.');
                             res.status(205).send('There is a booking which contradicts your dates.\nPlease verify your input.');
                             return;
                         } else { }

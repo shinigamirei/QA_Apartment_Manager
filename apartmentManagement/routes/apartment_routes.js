@@ -101,6 +101,9 @@ apartmentRoutes.route('/update').put(function (req, res) {
             if (req.body.apartment_region !== '') {
                 apartment.apartment_region = req.body.apartment_region;
             }
+            if (req.body.apartment_rooms !== '') {
+                apartment.apartment_rooms = req.body.apartment_rooms;
+            }
             apartment.save().then(apartment => {
                 res.status(200).send('Apartment updated');
                 console.log('Updated an apartment ' + apartment._id);

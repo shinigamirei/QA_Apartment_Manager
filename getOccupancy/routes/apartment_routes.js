@@ -8,6 +8,50 @@ let Room = require('../models/room.model');
 require('dotenv').config();
 var moment = require('moment');
 
+apartmentRoutes.route('/getFromDate_Count/:year/:month/:day').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+
+    console.log(`counting occupancies that started before, and end after ${req.params.day}/${req.params.month}/${req.params.year}`);
+
+    const checkdate = new Date(year, month, day);
+    let objectToReturn = [];
+
+    Apartment.find(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(`Found ${aparts.length} apartments`);
+            aparts.map((currentApartment) => {
+				console.log(`Currently checking occupancies for apartment ${currentApartment.apartment_name}, 
+				${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
+				var currentCount = parseInt(currentApartment.apartment_rooms, 10)
+                currentApartment.room_occupancies.forEach((roomOccupancy) => {
+					console.log(currentCount);
+                    if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
+                        moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)) {
+						currentCount--;
+                    }
+                });
+				if (currentCount <= 0) {
+					var returnCount= "Fully booked"
+				} else {
+					var returnCount= currentCount + "/" + currentApartment.apartment_rooms + " available"
+				}
+                objectToReturn.push({
+					_id: currentApartment._id,
+                    apartment_name: currentApartment.apartment_name,
+                    apartment_address: currentApartment.apartment_address,
+                    apartment_region: currentApartment.apartment_region,
+					room_count: returnCount
+                });
+            });
+			res.status(200).json(objectToReturn);
+        }
+    })
+});
 
 
 apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) {

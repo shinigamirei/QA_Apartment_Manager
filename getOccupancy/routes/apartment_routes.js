@@ -8,6 +8,146 @@ let Room = require('../models/room.model');
 require('dotenv').config();
 var moment = require('moment');
 
+
+var TwoDatesCount = function (aparts,checkdate,enddate) {
+    let objectToReturn = [];
+	var date_sort_asc = function (date1, date2) {
+		if (date1 > date2) return 1;
+		if (date1 < date2) return -1;
+		return 0;
+	}
+	            console.log(`Found ${aparts.length} apartments`);
+            aparts.map((currentApartment) => {
+				console.log(`Currently checking occupancies for apartment ${currentApartment.apartment_name}, 
+				${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
+				var currentCount = parseInt(currentApartment.apartment_rooms, 10)
+				var prestart=0;
+				var postend=0;
+				let startingDates=[];
+				let endingDates=[];
+                currentApartment.room_occupancies.forEach((roomOccupancy) => {
+				//console.log(currentCount);
+                    if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
+                        moment(roomOccupancy.occupancy_end).isSameOrAfter(enddate))  
+						{
+							//Any bookings that start before and end after the search dates must be included
+						currentCount--;
+					}else if (moment(roomOccupancy.occupancy_start).isSameOrAfter(checkdate) && moment(roomOccupancy.occupancy_end).isSameOrBefore(enddate)){
+							//Get dates from any bookings that are entirely within the search dates.
+						startingDates.push(roomOccupancy.occupancy_start);
+						endingDates.push(roomOccupancy.occupancy_end);
+                    }else if(moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) && moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)){
+							//Get dates from any bookings that end within the search dates.
+						endingDates.push(roomOccupancy.occupancy_end);
+						prestart++;
+					}else if(moment(roomOccupancy.occupancy_start).isSameOrBefore(enddate) && moment(roomOccupancy.occupancy_end).isSameOrAfter(enddate)){
+							//Get dates from any bookings that start within the search dates.
+						startingDates.push(roomOccupancy.occupancy_start);
+					
+					}
+                });
+				startingDates=startingDates.sort(date_sort_asc)
+				endingDates=endingDates.sort(date_sort_asc) //sort ascending
+				
+				
+				//remove occupancies that start before the seach from availability
+				currentCount=currentCount-prestart;
+				
+				var lowCount=currentCount;
+				for (var i=0;i<startingDates.length;i++){
+					//remove starting occupancies from availability
+					currentCount--;
+					
+					var max=false;
+					//this block is to add occupancies that end before the current starting occupancy back to availability.
+					while (max == false){
+						if (endingDates.length == 0){max = true}//no more ending occupancies
+						else if ( moment(startingDates[i]).isSameOrAfter(endingDates[0])){ //
+							//console.log("loop")
+							currentCount++;
+							endingDates.shift()
+						}else{
+							max = true; //reached max point
+						}
+					}
+					if 	(currentCount <= 0) {
+						{
+							break;
+						}
+					}//if availability is 0, apartment is full.
+					if (currentCount < lowCount){lowCount=currentCount};//keep count of lowest availability point.
+				}
+				if (currentCount <= 0) {
+					var returnCount= "Fully booked"//if availability is 0, apartment is full.
+				} else {
+					var returnCount= lowCount + "/" + currentApartment.apartment_rooms + " available"
+				}
+                objectToReturn.push({
+					_id: currentApartment._id,
+                    apartment_name: currentApartment.apartment_name,
+                    apartment_address: currentApartment.apartment_address,
+                    apartment_region: currentApartment.apartment_region,
+					room_count: returnCount
+                });
+            });
+			return (objectToReturn);
+
+}
+
+apartmentRoutes.route('/getFromDate2_Count/:year/:month/:day/:eyear/:emonth/:eday').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+    const eyear = req.params.eyear;
+    const emonth = req.params.emonth;
+    const eday = req.params.eday;
+
+    console.log(`counting occupancies from between ${req.params.day}/${req.params.month}/${req.params.year} and ${req.params.eday}/${req.params.emonth}/${req.params.eyear}`);
+	
+
+    const checkdate = new Date(year, month, day);
+	const enddate=new Date(eyear,emonth,eday)
+    Apartment.find(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+			objectToReturn=TwoDatesCount(aparts,checkdate,enddate);
+			res.status(200).json(objectToReturn);
+        }
+
+    })
+});
+
+
+
+
+apartmentRoutes.route('/getFromDate2_Region/:year/:month/:day/:eyear/:emonth/:eday/:region').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+	const region = req.params.region;
+	const eyear = req.params.eyear;
+	const emonth = req.params.emonth;
+	const eday = req.params.eday;
+    console.log(`counting occupancies from between ${req.params.day}/${req.params.month}/${req.params.year} and ${req.params.eday}/${req.params.emonth}/${req.params.eyear} from region ${req.params.region}`);
+
+    const checkdate = new Date(year, month, day);
+    const enddate = new Date(eyear, emonth, eday);
+    Apartment.find({ "apartment_region": region }).exec(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+			objectToReturn=TwoDatesCount(aparts,checkdate,enddate);				
+			res.status(200).json(objectToReturn);
+        }
+
+    })
+});
+
+
+
 apartmentRoutes.route('/getFromDate_Region/:year/:month/:day/:region').get(function (req, res) {
     const year = req.params.year;
     const month = req.params.month;
@@ -30,12 +170,13 @@ apartmentRoutes.route('/getFromDate_Region/:year/:month/:day/:region').get(funct
 				${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
 				var currentCount = parseInt(currentApartment.apartment_rooms, 10)
                 currentApartment.room_occupancies.forEach((roomOccupancy) => {
-					console.log(currentCount);
+				console.log(currentCount);
                     if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
                         moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)) {
 						currentCount--;
                     }
                 });
+				//console.log(currentCount);
 				if (currentCount <= 0) {
 					var returnCount= "Fully booked"
 				} else {
@@ -291,6 +432,144 @@ apartmentRoutes.route('/cleaningAvailability/').get(function (req, res) {
             res.status(200).json(objectToReturn);
         }
     });
+});
+apartmentRoutes.route('/getFromDate2_Count_OLD/:year/:month/:day/:eyear/:emonth/:eday').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+    const eyear = req.params.eyear;
+    const emonth = req.params.emonth;
+    const eday = req.params.eday;
+
+    console.log(`counting occupancies from between ${req.params.day}/${req.params.month}/${req.params.year} and ${req.params.eday}/${req.params.emonth}/${req.params.eyear}`);
+
+    const checkdate = new Date(year, month, day);
+    let objectToReturn = [];
+	const enddate=new Date(eyear,emonth,eday)
+    Apartment.find(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(`Found ${aparts.length} apartments`);
+            aparts.map((currentApartment) => {
+				console.log(`Currently checking occupancies for apartment ${currentApartment.apartment_name}, 
+				${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
+				var dateArray = [];
+				var currentDate = moment(checkdate);
+				var stopDate = moment(enddate);
+				while (currentDate <= stopDate) {
+					dateArray.push( moment(currentDate).format('YYYY-MM-DD') )
+					currentDate = moment(currentDate).add(1, 'days');
+				}
+				var lowCount = parseInt(currentApartment.apartment_rooms, 10)
+				console.log(currentApartment.apartment_rooms);
+				console.log(parseInt(currentApartment.apartment_rooms, 10));
+				console.log(lowCount);
+				//dateArray.forEach((checkingdate) => {
+				for(let i=0;i<dateArray.length;i++){
+					checkingdate=dateArray[i]
+					console.log(lowCount);
+					var currentCount = parseInt(currentApartment.apartment_rooms, 10)
+					currentApartment.room_occupancies.forEach((roomOccupancy) => {
+						//console.log(currentCount);
+						if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkingdate) &&
+							moment(roomOccupancy.occupancy_end).isSameOrAfter(checkingdate) ){
+							currentCount--;
+						}
+					})
+					if (currentCount < lowCount){
+						var lowCount = currentCount;
+					}
+					if (lowCount <= 0) {break;}
+					//console.log(currentCount + " " + lowCount);
+				}
+				if (lowCount <= 0) {
+					var returnCount= "Fully booked"
+				} else {
+					var returnCount= lowCount + "/" + currentApartment.apartment_rooms + " available"
+				}
+                objectToReturn.push({
+					_id: currentApartment._id,
+                    apartment_name: currentApartment.apartment_name,
+                    apartment_address: currentApartment.apartment_address,
+                    apartment_region: currentApartment.apartment_region,
+					room_count: returnCount
+                });
+            });
+			res.status(200).json(objectToReturn);
+        }
+    })
+});
+
+apartmentRoutes.route('/getFromDate2_Region_OLD/:year/:month/:day/:eyear/:emonth/:eday/:region').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+	const region = req.params.region;
+	const eyear = req.params.eyear;
+	const emonth = req.params.emonth;
+	const eday = req.params.eday;
+    console.log(`counting occupancies from between ${req.params.day}/${req.params.month}/${req.params.year} and ${req.params.eday}/${req.params.emonth}/${req.params.eyear} from region ${req.params.region}`);
+
+    const checkdate = new Date(year, month, day);
+    const enddate = new Date(eyear, emonth, eday);
+    let objectToReturn = [];
+
+    Apartment.find({ "apartment_region": region }).exec(function (err, aparts) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(`Found ${aparts.length} apartments`);
+            aparts.map((currentApartment) => {
+				console.log(`Currently checking occupancies for apartment ${currentApartment.apartment_name}, 
+				${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
+				var dateArray = [];
+				var currentDate = moment(checkdate);
+				var stopDate = moment(enddate);
+				while (currentDate <= stopDate) {
+					dateArray.push( moment(currentDate).format('YYYY-MM-DD') )
+					currentDate = moment(currentDate).add(1, 'days');
+				}
+				var lowCount = parseInt(currentApartment.apartment_rooms, 10)
+				console.log(currentApartment.apartment_rooms);
+				console.log(parseInt(currentApartment.apartment_rooms, 10));
+				console.log(lowCount);
+				//dateArray.forEach((checkingdate) => {
+				for(let i=0;i<dateArray.length;i++){
+					checkingdate=dateArray[i]
+					console.log(lowCount);
+					var currentCount = parseInt(currentApartment.apartment_rooms, 10)
+					currentApartment.room_occupancies.forEach((roomOccupancy) => {
+						//console.log(currentCount);
+						if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkingdate) &&
+							moment(roomOccupancy.occupancy_end).isSameOrAfter(checkingdate) ){
+							currentCount--;
+						}
+					})
+					if (currentCount < lowCount){
+						var lowCount = currentCount;
+					}
+					if (lowCount <= 0) {break;}
+					//console.log(currentCount + " " + lowCount);
+				}
+				if (lowCount <= 0) {
+					var returnCount= "Fully booked"
+				} else {
+					var returnCount= lowCount + "/" + currentApartment.apartment_rooms + " available"
+				}
+                objectToReturn.push({
+					_id: currentApartment._id,
+                    apartment_name: currentApartment.apartment_name,
+                    apartment_address: currentApartment.apartment_address,
+                    apartment_region: currentApartment.apartment_region,
+					room_count: returnCount
+                });
+            });
+			res.status(200).json(objectToReturn);
+        }
+    })
 });
 
 

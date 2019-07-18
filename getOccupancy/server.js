@@ -20,7 +20,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-mongoose.connect('mongodb://' + process.env.APARTMENTS_DATABASE_IP + ':27017/apartments', { useNewUrlParser: true });
+mongoose.connect('mongodb://' + process.env.APARTMENTS_DATABASE_IP + ':27017/trainees', { useNewUrlParser: true });
 const connection = mongoose.connection;
 
 connection.once('open', function () {

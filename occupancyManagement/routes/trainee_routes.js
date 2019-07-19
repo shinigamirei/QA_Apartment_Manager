@@ -22,12 +22,15 @@ traineeRoutes.route('/getTraineeNames/').get(function (req, res) {
 				currentTrainee.trainee_fname = bytes.toString(CryptoJS.enc.Utf8);
 				bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_lname, '3FJSei8zPx');
 				currentTrainee.trainee_lname = bytes.toString(CryptoJS.enc.Utf8);
-				objectToReturn.push({
-				trainee_id: currentTrainee._id,
-				trainee_fname: currentTrainee.trainee_fname,
-				trainee_lname: currentTrainee.trainee_lname,
-				});
-
+				bytes = CryptoJS.AES.decrypt(currentTrainee.bursary, '3FJSei8zPx');
+				currentTrainee.bursary = bytes.toString(CryptoJS.enc.Utf8);
+				if (currentTrainee.bursary === "False"){
+					objectToReturn.push({
+						trainee_id: currentTrainee._id,
+						trainee_fname: currentTrainee.trainee_fname,
+						trainee_lname: currentTrainee.trainee_lname,
+					});
+				}
 			});
 			res.status(200).json(objectToReturn);
 		}

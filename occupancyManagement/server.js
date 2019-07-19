@@ -27,7 +27,8 @@ connection.once('open', function () {
   console.log("MongoDB database connection established successfully");
 })
 
-app.use('/apartment', require('./routes/apartment_routes.js'));
+app.use('/apartment', require('./routes/apartment_routes'));
+app.use('/trainee', require('./routes/trainee_routes'));
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);

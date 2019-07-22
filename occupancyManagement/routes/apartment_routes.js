@@ -3,10 +3,12 @@ var apartmentRoutes = express.Router();
 var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
+let Trainee = require('../models/trainee.model');
 let Occupancies = require('../models/occupancies.model');
 let Room = require('../models/room.model');
 require('dotenv').config();
 var moment = require('moment');
+var CryptoJS = require("crypto-js");
 
 apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
     console.log('Adding occupancy to apartment ' + req.body._id);
@@ -187,6 +189,37 @@ apartmentRoutes.route('/deleteOccupancy/').delete(function (req, res) {
             }
             res.status(205).send('Room not found');
             console.log('No such room');
+        }
+    });
+});
+
+apartmentRoutes.route('/getOccupiers/:apartment_id').get(function (req, res) {
+    Apartment.findById(req.params.apartment_id, async function (err, apartment) {
+        if (apartment) {
+            let occupiers = []
+            let promises = apartment.room_occupancies.map(async function(occupier, i){
+                console.log("MAP")
+                await Trainee.findById(occupier.trainee_id, function (err, trainee){
+                    if(trainee){
+                        let t = {}
+                        t.f_name = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                        t.l_name = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                        t.phone_number = CryptoJS.AES.decrypt(trainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
+                        t.start_date = occupier.occupancy_start;
+                        t.end_date = occupier.occupancy_end;
+                        occupiers.push(t)
+                    }
+                })
+                return occupiers  
+            }
+            )
+            Promise.all(promises).then(function () {
+                console.log(occupiers)
+                res.status(200).json(occupiers)
+            })
+        }
+        else {
+            res.status(205).send('Trainee not found');
         }
     });
 });

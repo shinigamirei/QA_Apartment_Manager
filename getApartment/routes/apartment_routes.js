@@ -341,13 +341,11 @@ apartmentRoutes.route('/getOccupancyInfo/:trainee_id').get(function (req, res) {
 
             });
             if (result == "") {
-                //console.log("2");
                 res.status(205).send('Trainee not found');
                 return;
             }
         }
         else {
-            //console.log("3");
             res.status(205).send('Trainee not found');
         }
     });

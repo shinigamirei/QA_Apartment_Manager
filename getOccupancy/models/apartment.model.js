@@ -24,7 +24,11 @@ let ApartmentSchema = new Schema({
     room_occupancies: [OccupancySchema.schema],
 	apartment_image:{
 		type:String
-	}
+    },
+    apartment_info: {
+		type: String,
+		required:false
+	},
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

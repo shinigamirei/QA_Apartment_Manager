@@ -115,4 +115,27 @@ apartmentRoutes.route('/update').put(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/addIssue').put(function (req, res) {
+    console.log('Attempting to add an issue to an apartment ' + req.body._id);
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else if (apartment === null) {
+            res.status(205).send('No such apartment');
+        }
+        else {
+            apartment.apartment_issues.push({"issue":req.body.issue, "date_created":req.body.date_created})
+            apartment.save().then(apartment => {
+                res.status(200).send('Apartment updated');
+                console.log('Updated an apartment ' + apartment._id);
+            }).catch(err => {
+                res.status(205).send('Updating an apartment did not work');
+                console.log(err);
+            });
+        }
+    });
+});
+
+
 module.exports = apartmentRoutes;

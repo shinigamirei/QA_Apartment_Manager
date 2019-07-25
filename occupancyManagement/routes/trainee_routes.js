@@ -24,11 +24,22 @@ traineeRoutes.route('/getTraineeNames/').get(function (req, res) {
 				currentTrainee.trainee_lname = bytes.toString(CryptoJS.enc.Utf8);
 				bytes = CryptoJS.AES.decrypt(currentTrainee.bursary, '3FJSei8zPx');
 				currentTrainee.bursary = bytes.toString(CryptoJS.enc.Utf8);
-				if (currentTrainee.bursary === "False"){
+				bytes = CryptoJS.AES.decrypt(currentTrainee.status, '3FJSei8zPx');
+				currentTrainee.status = bytes.toString(CryptoJS.enc.Utf8);
+				bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_email, '3FJSei8zPx');
+				currentTrainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
+				if (currentTrainee.apartment != null){
+					bytes = CryptoJS.AES.decrypt(currentTrainee.apartment, '3FJSei8zPx');
+					currentTrainee.apartment = bytes.toString(CryptoJS.enc.Utf8)
+				}
+				console.log(currentTrainee)
+				console.log(currentTrainee.apartment)
+				if (currentTrainee.bursary === "False" && currentTrainee.status != "Suspended" && (currentTrainee.apartment === "" || currentTrainee.apartment == null)){
 					objectToReturn.push({
 						trainee_id: currentTrainee._id,
 						trainee_fname: currentTrainee.trainee_fname,
 						trainee_lname: currentTrainee.trainee_lname,
+						trainee_email: currentTrainee.trainee_email,
 					});
 				}
 			});

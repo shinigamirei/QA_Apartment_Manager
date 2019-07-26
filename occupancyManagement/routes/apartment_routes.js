@@ -94,6 +94,18 @@ apartmentRoutes.route('/addOccupancy/').post(function (req, res) {
 					res.status(205).send('Apartment full')
 				} else {
 					apartment.room_occupancies.push({ "trainee_id": req.body.trainee_id, "occupancy_start": startDate, "occupancy_end": endDate });
+										
+					let change={}
+					change["apartment"] = CryptoJS.AES.encrypt(apartment.apartment_name, '3FJSei8zPx').toString();
+					change["apartment_start_date"] = CryptoJS.AES.encrypt(startDate.toString(), '3FJSei8zPx').toString();
+					change["apartment_end_date"] = CryptoJS.AES.encrypt(endDate.toString(), '3FJSei8zPx').toString();
+					Trainee.updateOne({"_id": req.body.trainee_id }, {"$set": change}, function(err, trainee){
+						if (err) {
+							console.log(err);
+							res.status(205).send(err);
+							return;
+						}
+					});
 					apartment.save();
 					console.log("trainee_id: " + req.body.trainee_id + ", occupancy_start: " + startDate + ", occupancy_end:" + endDate)
 					res.status(200).send('Occupancy added');

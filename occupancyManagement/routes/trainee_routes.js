@@ -26,7 +26,7 @@ traineeRoutes.route('/getTraineeNames/').get(function (req, res) {
 				currentTrainee.bursary = bytes.toString(CryptoJS.enc.Utf8);
 				bytes = CryptoJS.AES.decrypt(currentTrainee.status, '3FJSei8zPx');
 				currentTrainee.status = bytes.toString(CryptoJS.enc.Utf8);
-				bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_email, '3FJSei8zPx');
+                var bytes  = CryptoJS.AES.decrypt(currentTrainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
 				currentTrainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
 				if (currentTrainee.apartment != null){
 					bytes = CryptoJS.AES.decrypt(currentTrainee.apartment, '3FJSei8zPx');

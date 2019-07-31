@@ -68,7 +68,7 @@ apartmentRoutes.route('/getRegions/').get(function (req, res) {
         }
         //res.status(200).json(regionJson);
         //console.log('Returned list');
-    });
+    }));
 });
 
 apartmentRoutes.route('/create/').post(function (req, res) {

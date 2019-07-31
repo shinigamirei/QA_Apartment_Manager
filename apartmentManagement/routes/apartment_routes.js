@@ -137,5 +137,26 @@ apartmentRoutes.route('/addIssue').put(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/deleteIssue').delete(function (req, res) {
+    console.log('Removing issue ' + req.body._id + ' from apartment ' + req.body.id);
+    Apartment.findById(req.body.id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        } else {
+            for (var i = 0; i < apartment.apartment_issues.length; i++) {
+                if (apartment.apartment_issues[i]._id == req.body._id) {
+                    apartment.apartment_issues.splice(i, 1);
+                    apartment.save();
+                    res.status(200).send('Issue removed');
+                    return;
+                } else {
+                    res.status(205).send('Issue does not exist');
+                }
+            }
+            console.log('Issue does not exist');
+        }
+    });
+});
+
 
 module.exports = apartmentRoutes;

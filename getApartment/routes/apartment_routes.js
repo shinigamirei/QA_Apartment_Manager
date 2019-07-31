@@ -53,22 +53,15 @@ apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
 });
 
 apartmentRoutes.route('/getRegions/').get(function (req, res) {
-	let regionJson=[]
-    Apartment.aggregate(distinct( "apartment_region" ).sort().exec(function (err, regionlist) {
-        if (err) {
-            console.log(err);
-        }
-        else {
+            let regionlist = ['Manchester', 'Brighton', 'Leeds', 'London']
 			res.status(200).json(regionlist);
 			console.log('Returned list');
 			//regionlist.map(function(Region,i){
             //console.log(Region);
 			//	regionJson.push({value: Region});
 			//})
-        }
         //res.status(200).json(regionJson);
         //console.log('Returned list');
-    }));
 });
 
 apartmentRoutes.route('/create/').post(function (req, res) {

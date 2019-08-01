@@ -26,6 +26,10 @@ traineeRoutes.route('/getTraineeNames/').get(function (req, res) {
 				currentTrainee.bursary = bytes.toString(CryptoJS.enc.Utf8);
 				bytes = CryptoJS.AES.decrypt(currentTrainee.status, '3FJSei8zPx');
 				currentTrainee.status = bytes.toString(CryptoJS.enc.Utf8);
+				bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_start_date, '3FJSei8zPx');
+				currentTrainee.trainee_start_date = bytes.toString(CryptoJS.enc.Utf8);
+				bytes = CryptoJS.AES.decrypt(currentTrainee.trainee_end_date, '3FJSei8zPx');
+				currentTrainee.trainee_end_date = bytes.toString(CryptoJS.enc.Utf8);
                 bytes  = CryptoJS.AES.decrypt(currentTrainee.trainee_email, CryptoJS.enc.Hex.parse("253D3FB468A0E24677C28A624BE0F939"), {iv: CryptoJS.enc.Hex.parse("00000000000000000000000000000000")});
 				currentTrainee.trainee_email = bytes.toString(CryptoJS.enc.Utf8);
 				if (currentTrainee.apartment != null){
@@ -40,6 +44,8 @@ traineeRoutes.route('/getTraineeNames/').get(function (req, res) {
 						trainee_fname: currentTrainee.trainee_fname,
 						trainee_lname: currentTrainee.trainee_lname,
 						trainee_email: currentTrainee.trainee_email,
+						trainee_start_date: currentTrainee.trainee_start_date,
+						trainee_end_date: currentTrainee.trainee_end_date
 					});
 				}
 			});

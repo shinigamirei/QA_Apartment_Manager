@@ -184,12 +184,25 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
             console.log("didnt go into else statement")
         } else {
             for (var i = 0; i < apartment.room_occupancies.length; i++) {
-                if (apartment.room_occupancies.id[i] == req.body._id) {
-                    console.log('MADE IT TO IF STATEMNT');
+                console.log(apartment.room_occupancies[i]._id)
+                if (apartment.room_occupancies[i]._id == req.body._id) {
                     apartment.room_occupancies.splice(i, 1);
                     apartment.save();
-                    res.status(200).send('Occupier removed');
-                    console.log(apartment.room_occupancies)
+                    Trainee.findById(apartment.room_occupancies[i].trainee_id, function (err, trainee){
+                        if(!trainee){
+                            console.log(err)
+                            console.log("couldn't clear trainee apartment")
+                        }
+                        else{
+                            console.log(trainee)
+                            trainee.apartment = ''
+                            trainee.apartment_start_date = null
+                            trainee.apartment_end_date = null
+                            trainee.save()
+                            res.status(200).send('Occupier removed');
+                            console.log(apartment.room_occupancies)
+                        }
+                    })
                     return;
                 } else {
                     res.status(205).send('Occupier does not exist');

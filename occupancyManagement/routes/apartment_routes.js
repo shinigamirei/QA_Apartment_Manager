@@ -186,8 +186,6 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
             for (var i = 0; i < apartment.room_occupancies.length; i++) {
                 console.log(apartment.room_occupancies[i]._id)
                 if (apartment.room_occupancies[i]._id == req.body._id) {
-                    apartment.room_occupancies.splice(i, 1);
-                    apartment.save();
                     Trainee.findById(apartment.room_occupancies[i].trainee_id, function (err, trainee){
                         if(!trainee){
                             console.log(err)
@@ -199,13 +197,15 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
                             trainee.apartment_start_date = null
                             trainee.apartment_end_date = null
                             trainee.save()
+                            apartment.room_occupancies.splice(i, 1);
+                            apartment.save();
                             res.status(200).send('Occupier removed');
                             console.log(apartment.room_occupancies)
                         }
                     })
                     return;
                 } else {
-                    res.status(205).send('Occupier does not exist');
+                    res.status(404).send('Occupier does not exist');
                 }
             }
             console.log('Occupier does not exist');
@@ -227,6 +227,7 @@ apartmentRoutes.route('/getOccupiers/:apartment_id').get(function (req, res) {
                         t.phone_number = CryptoJS.AES.decrypt(trainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                         t.start_date = occupier.occupancy_start;
                         t.end_date = occupier.occupancy_end;
+                        t._id = occupier._id;
                         occupiers.push(t)
                     }
                 })

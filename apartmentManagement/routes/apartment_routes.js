@@ -145,6 +145,7 @@ apartmentRoutes.route('/deleteIssue').delete(function (req, res) {
         } else {
             for (var i = 0; i < apartment.apartment_issues.length; i++) {
                 if (apartment.apartment_issues[i]._id == req.body._id) {
+					apartment.apartment_issues_archive.push({"issue":apartment.apartment_issues[i].issue, "date_created":apartment.apartment_issues[i].date_created});
                     apartment.apartment_issues.splice(i, 1);
                     apartment.save();
                     res.status(200).send('Issue removed');

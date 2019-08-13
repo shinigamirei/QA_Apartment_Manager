@@ -30,7 +30,9 @@ let ApartmentSchema = new Schema({
 		type: String,
 		required:false
     },
-    apartment_issues: [IssueSchema.schema]
+    apartment_issues: [IssueSchema.schema],
+    room_occupancies_archive: [OccupancySchema.schema],
+    apartment_issues_archive: [IssueSchema.schema]
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

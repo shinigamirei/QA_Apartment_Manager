@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
-let OccupancySchema = require('../models/occupancies.model');
+let OccupancySchema = require('./occupancies.model');
+let IssueSchema = require('./issues.model')
 
 let ApartmentSchema = new Schema({
     apartment_name: {
@@ -14,7 +15,7 @@ let ApartmentSchema = new Schema({
     },
     apartment_region: {
         type: String,
-        enum: ['Manchester', 'Brighton', 'Leeds', 'London'],
+//        enum: ['Manchester', 'Brighton', 'Leeds', 'London'],
         required: true
     },
     apartment_rooms: {
@@ -28,7 +29,10 @@ let ApartmentSchema = new Schema({
     apartment_info: {
 		type: String,
 		required:false
-	},
+    },
+    apartment_issues: [IssueSchema.schema],
+    room_occupancies_archive: [OccupancySchema.schema],
+    apartment_issues_archive: [IssueSchema.schema]
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

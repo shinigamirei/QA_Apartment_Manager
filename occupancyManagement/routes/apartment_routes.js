@@ -204,10 +204,47 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
                         }
                     })
                     return;
-                } else {
-                    res.status(404).send('Occupier does not exist');
+                } 
+            }
+            res.status(404).send('Occupier does not exist');
+            console.log('Occupier does not exist');
+        }
+    });
+});
+
+apartmentRoutes.route('/endOccupant').delete(function (req, res) {
+    console.log('Occupier ID ' + req.body._id);
+    console.log('Apartment ID ' + req.body.id);
+    console.log('Date ' + req.body.date);
+    console.log('Changing end date of occupier ' + req.body._id + ' from apartment ' + req.body.id + ' to ' + req.body.date);
+    Apartment.findById(req.body.id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+            console.log("didnt go into else statement")
+        } else {
+			console.log(apartment);
+            for (var i = 0; i < apartment.room_occupancies.length; i++) {
+                console.log(apartment.room_occupancies[i]._id)
+                if (apartment.room_occupancies[i]._id == req.body._id) {
+                    Trainee.findById(apartment.room_occupancies[i].trainee_id, function (err, trainee){
+                        if(!trainee){
+                            console.log(err)
+                            console.log("couldn't clear trainee apartment")
+                        }
+                        else{
+                            console.log(trainee)
+                            trainee.apartment_end_date = CryptoJS.AES.encrypt(req.body.date.toString(), '3FJSei8zPx').toString();
+                            trainee.save()
+                            apartment.room_occupancies[i].occupancy_end = req.body.date;
+                            apartment.save();
+                            res.status(200).send('Occupier removed');
+                            console.log(apartment.room_occupancies)
+                        }
+                    })
+                    return;
                 }
             }
+            res.status(404).send('Occupier does not exist');
             console.log('Occupier does not exist');
         }
     });

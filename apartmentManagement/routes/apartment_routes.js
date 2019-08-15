@@ -3,6 +3,7 @@ var apartmentRoutes = express.Router();
 var async = require("async");
 var request = require('request');
 let Apartment = require('../models/apartment.model');
+let Trainee = require('../models/trainee.model');
 let Occupancies = require('../models/occupancies.model');
 let Room = require('../models/room.model');
 require('dotenv').config();
@@ -25,11 +26,24 @@ apartmentRoutes.route('/create/').post(function (req, res) {
 apartmentRoutes.route('/delete/:id').delete(function (req, res) {
     let id = req.params.id;
     console.log('Attempting to delete an apartment by id ' + id);
-    Apartment.deleteOne(Apartment.findById(id), function (err, apartment) {
+    Apartment.findById(id, function (err, apartment){
         if (err) {
             console.log(err);
         }
         else {
+            apartment.status = "Inactive";
+            apartment.save();
+            apartment.room_occupancies.map(occupant => {
+                Trainee.findById(occupant.trainee_id, function(err, trainee){
+                    if(trainee){
+                        trainee.apartment = ''
+                        trainee.apartment_start_date = null
+                        trainee.apartment_end_date = null
+                        trainee.save()
+                    }
+                })
+            })
+            apartment.room_occupancies = []
             res.status(200).send('Apartment ' + id + ' deleted');
             console.log('Apartment deleted');
         }

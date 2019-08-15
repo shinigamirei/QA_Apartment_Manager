@@ -108,7 +108,7 @@ apartmentRoutes.route('/getFromDate2_Count/:year/:month/:day/:eyear/:emonth/:eda
 
     const checkdate = new Date(year, month, day);
 	const enddate=new Date(eyear,emonth,eday)
-    Apartment.find(function (err, aparts) {
+    Apartment.find({"status": "Active"}, function (err, aparts) {
         if (err) {
             console.log(err);
         }
@@ -135,7 +135,7 @@ apartmentRoutes.route('/getFromDate2_Region/:year/:month/:day/:eyear/:emonth/:ed
 
     const checkdate = new Date(year, month, day);
     const enddate = new Date(eyear, emonth, eday);
-    Apartment.find({ "apartment_region": region }).exec(function (err, aparts) {
+    Apartment.find({ "apartment_region": region, "status": "Active" }).exec(function (err, aparts) {
         if (err) {
             console.log(err);
         }
@@ -160,7 +160,7 @@ apartmentRoutes.route('/getFromDate_Region/:year/:month/:day/:region').get(funct
     const checkdate = new Date(year, month, day);
     let objectToReturn = [];
 
-    Apartment.find({ "apartment_region": region }).exec(function (err, aparts) {
+    Apartment.find({ "apartment_region": region, "status":"Active" }).exec(function (err, aparts) {
         if (err) {
             console.log(err);
         }
@@ -208,7 +208,7 @@ apartmentRoutes.route('/getFromDate_Count/:year/:month/:day').get(function (req,
     const checkdate = new Date(year, month, day);
     let objectToReturn = [];
 
-    Apartment.find(function (err, aparts) {
+    Apartment.find({"status": "Active"}, function (err, aparts) {
         if (err) {
             console.log(err);
         }
@@ -255,7 +255,7 @@ apartmentRoutes.route('/getFromDate/:year/:month/:day').get(function (req, res) 
     const checkdate = new Date(year, month, day);
     let objectToReturn = [];
 
-    Apartment.find(function (err, aparts) {
+    Apartment.find({"status": "Active"}, function (err, aparts) {
         if (err) {
             console.log(err);
         }

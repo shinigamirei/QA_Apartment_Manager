@@ -304,9 +304,11 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
             console.log("didnt go into else statement")
         } else {
             for (var i = 0; i < apartment.room_occupancies.length; i++) {
-                console.log(apartment.room_occupancies[i]._id)
+                let trainee_id = apartment.room_occupancies[i].trainee_id
                 if (apartment.room_occupancies[i]._id == req.body._id) {
-                    Trainee.findById(apartment.room_occupancies[i].trainee_id, function (err, trainee){
+                    apartment.room_occupancies.splice(i, 1);
+                    apartment.save()
+                    Trainee.findById(trainee_id, function (err, trainee){
                         if(!trainee){
                             console.log(err)
                             console.log("couldn't clear trainee apartment")
@@ -317,8 +319,6 @@ apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
                             trainee.apartment_start_date = null
                             trainee.apartment_end_date = null
                             trainee.save()
-                            apartment.room_occupancies.splice(i, 1);
-                            apartment.save();
                             res.status(200).send('Occupier removed');
                             console.log(apartment.room_occupancies)
                         }
@@ -353,6 +353,7 @@ apartmentRoutes.route('/endOccupant').delete(function (req, res) {
                         }
                         else{
                             console.log(trainee)
+                            trainee.apartment = ''
                             trainee.apartment_end_date = CryptoJS.AES.encrypt(req.body.date.toString(), '3FJSei8zPx').toString();
                             trainee.save()
                             apartment.room_occupancies[i].occupancy_end = req.body.date;
@@ -373,12 +374,13 @@ apartmentRoutes.route('/endOccupant').delete(function (req, res) {
 apartmentRoutes.route('/getOccupiers/:apartment_id').get(function (req, res) {
     Apartment.findById(req.params.apartment_id, async function (err, apartment) {
         if (apartment) {
-            let occupiers = []
-            let promises = apartment.room_occupancies.map(async function (occupier, i) {
-                console.log("MAP")
-                await Trainee.findById(occupier.trainee_id, function (err, trainee) {
-                    if (trainee) {
-                        let t = {}
+            var promises= apartment.room_occupancies.map((occupier,i) =>{
+                return new Promise(function(resolve,reject){
+                    Trainee.findById(occupier.trainee_id,(err,trainee)=>{
+                        if(err){
+                            return reject(new Error("some"));
+                        }
+                        let t ={}
                         t.f_name = CryptoJS.AES.decrypt(trainee.trainee_fname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                         t.l_name = CryptoJS.AES.decrypt(trainee.trainee_lname, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
                         t.phone_number = CryptoJS.AES.decrypt(trainee.trainee_phone, '3FJSei8zPx').toString(CryptoJS.enc.Utf8);
@@ -386,19 +388,17 @@ apartmentRoutes.route('/getOccupiers/:apartment_id').get(function (req, res) {
                         t.end_date = occupier.occupancy_end;
                         t._id = occupier._id;
 						t.t_id = occupier.trainee_id;
-                        occupiers.push(t)
-                    }
-                })
-                return occupiers
-            }
-            )
-            Promise.all(promises).then(function () {
-                console.log(occupiers)
-                res.status(200).json(occupiers)
-            })
+                        resolve(t);
+                  })
+               });
+              });
+              
+              Promise.all(promises).then(function(arr){
+                res.status(200).json(arr)
+              });
         }
         else {
-            res.status(205).send('Trainee not found');
+            res.status(205).send('Apartment not found');
         }
     });
 });

@@ -173,6 +173,126 @@ apartmentRoutes.route('/addOccupancy_OLD/').post(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/editOccupancy/').post(function (req, res) {
+    console.log('Editing occupancy to apartment ' + req.body._id);
+    let startDate = new Date(req.body.syear, req.body.smonth, req.body.sday)
+    let endDate = new Date(req.body.eyear, req.body.emonth, req.body.eday)
+    console.log('Start date: ' + startDate);
+    console.log('End date: ' + endDate);
+    if (startDate >= endDate) {
+        //Start date must be before end date
+        res.status(205).send('The occupancy start date must be before the end date\nPlease validate your dates.');
+        return;
+    }
+    var date_sort_asc = function (date1, date2) {
+        if (date1 > date2) return 1;
+        if (date1 < date2) return -1;
+        return 0;
+    }
+    Apartment.findById(req.body._id, function (err, apartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(apartment);
+            console.log(`Currently checking occupancies for apartment ${apartment.apartment_name}, 
+				${apartment.apartment_address}, ${apartment.apartment_region}`);
+
+            var currentCount = parseInt(apartment.apartment_rooms, 10)
+            var prestart = 0;
+            var postend = 0;
+            let startingDates = [];
+            let endingDates = [];
+            apartment.room_occupancies.forEach((roomOccupancy) => {
+               // console.log(currentCount);
+               // console.log(roomOccupancy._id);
+               // console.log(req.body.occupancy_id);
+               // console.log(roomOccupancy.occupancy_start);
+               // console.log(roomOccupancy.occupancy_end);
+				if (roomOccupancy._id == req.body.occupancy_id){}
+				    //exclude the current occupancy from the count.
+                else if (moment(roomOccupancy.occupancy_start).isSameOrBefore(startDate) &&
+                    moment(roomOccupancy.occupancy_end).isSameOrAfter(endDate)) {
+                    //Any bookings that start before and end after the search dates must be included
+                    currentCount--;
+                } else if (moment(roomOccupancy.occupancy_start).isSameOrAfter(startDate) && moment(roomOccupancy.occupancy_end).isSameOrBefore(endDate)) {
+                    //Get dates from any bookings that are entirely within the search dates.
+                    startingDates.push(roomOccupancy.occupancy_start);
+                    endingDates.push(roomOccupancy.occupancy_end);
+                } else if (moment(roomOccupancy.occupancy_start).isSameOrBefore(startDate) && moment(roomOccupancy.occupancy_end).isSameOrAfter(startDate)) {
+                    //Get dates from any bookings that end within the search dates.
+                    endingDates.push(roomOccupancy.occupancy_end);
+                    prestart++;
+                } else if (moment(roomOccupancy.occupancy_start).isSameOrBefore(endDate) && moment(roomOccupancy.occupancy_end).isSameOrAfter(endDate)) {
+                    //Get dates from any bookings that start within the search dates.
+                    startingDates.push(roomOccupancy.occupancy_start);
+
+                }
+            });
+            startingDates = startingDates.sort(date_sort_asc)
+            endingDates = endingDates.sort(date_sort_asc) //sort ascending
+
+
+            //remove occupancies that start before the seach from availability
+            currentCount = currentCount - prestart;
+
+            for (var i = 0; i < startingDates.length; i++) {
+                //remove starting occupancies from availability
+                currentCount--;
+				//console.log(currentCount)
+				//console.log(startingDates[i])
+				//console.log(endingDates[0])
+                var max = false;
+                //this block is to add occupancies that end before the current starting occupancy back to availability.
+                while (max == false) {
+                    if (endingDates.length == 0) { max = true }//no more ending occupancies
+                    else if (moment(startingDates[i]).isSameOrAfter(endingDates[0])) { //
+                        //console.log("loop")
+                        currentCount++;
+                        endingDates.shift()
+                    } else {
+                        max = true; //reached max point
+                    }
+                }
+                if (currentCount <= 0) {
+                    {
+                        break;
+                    }
+                }//if availability is 0, apartment is full.
+            }
+            if (currentCount <= 0) {
+                res.status(205).send('Apartment full')
+            } else {
+				console.log(apartment.room_occupancies.length)
+				for (var i = 0; i < apartment.room_occupancies.length; i++) {
+					console.log(apartment.room_occupancies[i]._id)
+					if (apartment.room_occupancies[i]._id == req.body.occupancy_id) {
+						Trainee.findById(apartment.room_occupancies[i].trainee_id, function (err, trainee){
+							if(!trainee){
+								console.log(err)
+								console.log("couldn't clear trainee apartment")
+							}
+							else{
+								console.log(trainee)
+								trainee.apartment_start_date = CryptoJS.AES.encrypt(startDate.toString(), '3FJSei8zPx').toString();
+								trainee.apartment_end_date = CryptoJS.AES.encrypt(endDate.toString(), '3FJSei8zPx').toString();
+								trainee.save()
+								apartment.room_occupancies[i].occupancy_start = startDate;
+								apartment.room_occupancies[i].occupancy_end = endDate;
+								apartment.save();
+								res.status(200).send('Occupier removed');
+								console.log(apartment.room_occupancies)
+							}
+						})
+						return;
+					}
+				}
+            }
+            return;
+        }
+    });
+});
+
 
 apartmentRoutes.route('/deleteOccupant').delete(function (req, res) {
     console.log('Occupier ID' + req.body._id);
@@ -267,6 +387,7 @@ apartmentRoutes.route('/getOccupiers/:apartment_id').get(function (req, res) {
                         t.start_date = occupier.occupancy_start;
                         t.end_date = occupier.occupancy_end;
                         t._id = occupier._id;
+						t.t_id = occupier.trainee_id;
                         resolve(t);
                   })
                });

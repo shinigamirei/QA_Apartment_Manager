@@ -32,7 +32,21 @@ let ApartmentSchema = new Schema({
     },
     apartment_issues: [IssueSchema.schema],
     room_occupancies_archive: [OccupancySchema.schema],
-    apartment_issues_archive: [IssueSchema.schema]
+    apartment_issues_archive: [IssueSchema.schema],
+    status:{
+        type: String,
+        required: true,
+        default: "Active"
+    },
+    apartment_rent:{
+        type: Number
+    },
+    apartment_bills:{
+        type: Number 
+    },
+    landlord_contact:{
+        type: String
+    }
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

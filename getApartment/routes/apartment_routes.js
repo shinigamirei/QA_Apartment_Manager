@@ -10,7 +10,7 @@ var moment = require('moment');
 
 apartmentRoutes.route('/getAll/').get(function (req, res) {
     console.log('Looked up all apartments');
-    Apartment.find(function (err, apartment) {
+    Apartment.find({"status": "Active"}, function (err, apartment) {
         if (err) {
             console.log(err);
         }
@@ -40,7 +40,7 @@ apartmentRoutes.route('/getById/:id').get(function (req, res) {
 apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
     let region = req.params.region;
     console.log('Looked up apartment by region ' + region);
-    Apartment.find({ "apartment_region": region }).exec(function (err, apartment) {
+    Apartment.find({ "apartment_region": region, "status": "Active" }).exec(function (err, apartment) {
         if (err) {
             console.log(err);
         }

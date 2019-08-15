@@ -65,7 +65,7 @@ apartmentRoutes.route('/getRegions/').get(function (req, res) {
 				console.log(regionlist);
 			}
 			//}
-			});
+			}); 
 			//regionlist.map(function(Region,i){
             //console.log(Region);
 			//	regionJson.push({value: Region});

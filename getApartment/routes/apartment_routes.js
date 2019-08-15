@@ -10,7 +10,7 @@ var moment = require('moment');
 
 apartmentRoutes.route('/getAll/').get(function (req, res) {
     console.log('Looked up all apartments');
-    Apartment.find(function (err, apartment) {
+    Apartment.find({"status": "Active"}, function (err, apartment) {
         if (err) {
             console.log(err);
         }
@@ -40,7 +40,7 @@ apartmentRoutes.route('/getById/:id').get(function (req, res) {
 apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
     let region = req.params.region;
     console.log('Looked up apartment by region ' + region);
-    Apartment.find({ "apartment_region": region }).exec(function (err, apartment) {
+    Apartment.find({ "apartment_region": region, "status": "Active" }).exec(function (err, apartment) {
         if (err) {
             console.log(err);
         }
@@ -53,9 +53,19 @@ apartmentRoutes.route('/getByRegion/:region').get(function (req, res) {
 });
 
 apartmentRoutes.route('/getRegions/').get(function (req, res) {
-            let regionlist = ['Manchester', 'Brighton', 'Leeds', 'London']
-			res.status(200).json(regionlist);
-			console.log('Returned list');
+            //let regionlist = ['Manchester', 'Brighton', 'Leeds', 'London']
+			//res.status(200).json(regionlist);
+			//Apartment.aggregate(distinct( "apartment_region" ).sort().exec(function (err, regionlist) {
+			Apartment.distinct( "apartment_region" , function(err, regionlist){
+            if (err) {
+              console.log(err);
+            }
+            else {
+				res.status(200).json(regionlist);
+				console.log(regionlist);
+			}
+			//}
+			}); 
 			//regionlist.map(function(Region,i){
             //console.log(Region);
 			//	regionJson.push({value: Region});

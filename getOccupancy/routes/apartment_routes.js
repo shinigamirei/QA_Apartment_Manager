@@ -95,6 +95,44 @@ var TwoDatesCount = function (aparts,checkdate,enddate) {
 
 }
 
+apartmentRoutes.route('/getFromDate_Count_Only/:apart/:year/:month/:day').get(function (req, res) {
+    const year = req.params.year;
+    const month = req.params.month;
+    const day = req.params.day;
+    const apart = req.params.apart;
+    console.log(`counting occupancies that started before, and end after ${req.params.day}/${req.params.month}/${req.params.year}`);
+
+    const checkdate = new Date(year, month, day);
+    let objectToReturn = [];
+    Apartment.findById(apart, function (err, currentApartment) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+			console.log(`Currently checking occupancies for apartment ${currentApartment.apartment_name}, 
+			${currentApartment.apartment_address}, ${currentApartment.apartment_region}`);
+			var currentCount = parseInt(currentApartment.apartment_rooms, 10)
+            currentApartment.room_occupancies.forEach((roomOccupancy) => {
+				console.log(currentCount);
+                if (moment(roomOccupancy.occupancy_start).isSameOrBefore(checkdate) &&
+                    moment(roomOccupancy.occupancy_end).isSameOrAfter(checkdate)) {
+					currentCount--;
+                }
+            });
+			if (currentCount <= 0) {
+				var returnCount= "Fully booked"
+			} else {
+				var returnCount= currentCount + "/" + currentApartment.apartment_rooms + " available"
+			}
+            //objectToReturn.push({
+			//	room_count: returnCount
+            //});
+            
+			res.status(200).send(returnCount);
+        }
+    })
+});
+
 apartmentRoutes.route('/getFromDate2_Count/:year/:month/:day/:eyear/:emonth/:eday').get(function (req, res) {
     const year = req.params.year;
     const month = req.params.month;

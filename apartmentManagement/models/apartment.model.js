@@ -50,7 +50,10 @@ let ApartmentSchema = new Schema({
     },
     landlord_contact:{
         type: String
-    }
+    },
+	apartment_availability:{
+		type: Date
+	}
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

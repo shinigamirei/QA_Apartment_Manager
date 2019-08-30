@@ -50,6 +50,29 @@ apartmentRoutes.route('/delete/:id').delete(function (req, res) {
     });
 });
 
+apartmentRoutes.route('/edit/:id').post(function (req, res) {
+    let id = req.params.id;
+	let apartment = new Apartment(req.body);
+    console.log('Attempting to edit an apartment by id ' + id);
+    Apartment.findById(id, function (err, foundApartment){
+        if (err) {
+            console.log(err);
+        }
+        else {
+			console.log(apartment);
+			console.log(foundApartment);
+			foundApartment.apartment_availability=apartment.apartment_availability;
+			foundApartment.apartment_info=apartment.apartment_info;
+			foundApartment.apartment_rent=apartment.apartment_rent;
+			foundApartment.apartment_availability=apartment.apartment_availability;
+			foundApartment.apartment_bills=apartment.apartment_bills;
+			foundApartment.landlord_contact=apartment.landlord_contact;
+			foundApartment.save();
+            res.status(200).send('Apartment ' + id + ' edited');
+        }
+    });
+});
+
 apartmentRoutes.route('/addRoom/').post(function (req, res) {
     console.log('Adding room ' + req.body.room_name_number + ' to apartment ' + req.body._id);
     Apartment.findById(req.body._id, function (err, apartment) {

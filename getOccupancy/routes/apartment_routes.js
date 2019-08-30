@@ -88,7 +88,8 @@ var TwoDatesCount = function (aparts,checkdate,enddate) {
                     apartment_address: currentApartment.apartment_address,
                     apartment_region: currentApartment.apartment_region,
 					apartment_image: currentApartment.apartment_image,
-					room_count: returnCount
+					room_count: returnCount,
+					apartment_availability: currentApartment.apartment_availability
                 });
             });
 			return (objectToReturn);
@@ -227,7 +228,8 @@ apartmentRoutes.route('/getFromDate_Region/:year/:month/:day/:region').get(funct
                     apartment_address: currentApartment.apartment_address,
                     apartment_region: currentApartment.apartment_region,
 					apartment_image: currentApartment.apartment_image,
-					room_count: returnCount
+					room_count: returnCount,
+					apartment_availability: currentApartment.apartment_availability
                 });
             });
 			res.status(200).json(objectToReturn);
@@ -274,9 +276,11 @@ apartmentRoutes.route('/getFromDate_Count/:year/:month/:day').get(function (req,
                     apartment_address: currentApartment.apartment_address,
                     apartment_region: currentApartment.apartment_region,
 					apartment_image: currentApartment.apartment_image,
-					room_count: returnCount
+					room_count: returnCount,
+					apartment_availability: currentApartment.apartment_availability
                 });
             });
+				console.log(objectToReturn)
 			res.status(200).json(objectToReturn);
         }
     })

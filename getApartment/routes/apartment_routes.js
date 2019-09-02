@@ -56,7 +56,7 @@ apartmentRoutes.route('/getRegions/').get(function (req, res) {
             //let regionlist = ['Manchester', 'Brighton', 'Leeds', 'London']
 			//res.status(200).json(regionlist);
 			//Apartment.aggregate(distinct( "apartment_region" ).sort().exec(function (err, regionlist) {
-			Apartment.distinct( "apartment_region" , function(err, regionlist){
+			Apartment.distinct( "apartment_region", {"status": "Active"}, function(err, regionlist){
             if (err) {
               console.log(err);
             }

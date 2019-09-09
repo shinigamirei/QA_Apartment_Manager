@@ -17,11 +17,7 @@ let ApartmentSchema = new Schema({
         type: String,
 //        enum: ['Manchester', 'Brighton', 'Leeds', 'London'],
         required: true
-    },
-    apartment_availability: {
-		type: String,
-		required:true
-	},
+    }
     apartment_rooms: {
 		type: String,
 		required:true
@@ -50,7 +46,10 @@ let ApartmentSchema = new Schema({
     },
     landlord_contact:{
         type: String
-    }
+    },
+	apartment_availability:{
+		type: Date
+	}
 });
 
 module.exports = mongoose.model('Apartment', ApartmentSchema);

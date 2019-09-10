@@ -1,4 +1,4 @@
-FROM node:latest
+FROM mhart/alpine-node:latest
 WORKDIR /QA-Apt-BackEnd-AppManagement
 COPY . .
 RUN npm install

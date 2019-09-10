@@ -6,6 +6,16 @@
   "scripts": {
     "test": "nyc --reporter=text --all mocha --recursively --timeout 10000 --exit"
   },
+  "mocha":{
+    "reporter": [
+      "mocha-junit-reporter"
+    ],
+    "reporterOptions": {
+      "mochaFile":[
+        "apartmentManagement_test_results.xml"
+      ]
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -49,5 +59,8 @@
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.0",
     "winston-papertrail": "^1.0.5"
+  },
+  "devDependencies": {
+    "mocha-junit-reporter": "^1.23.1"
   }
 }

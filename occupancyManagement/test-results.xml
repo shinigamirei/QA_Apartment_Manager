@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="30.027" tests="5" failures="3">
+  <testsuite name="Root Suite" timestamp="2019-09-10T12:59:22" tests="0" failures="0" time="0">
+  </testsuite>
+  <testsuite name="add and delete apartment" timestamp="2019-09-10T12:59:22" tests="1" file="C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js" failures="1" time="10.015">
+    <testcase name="add and delete apartment test" time="10.015" classname="test">
+      <failure message="Timeout of 10000ms exceeded. For async tests and hooks, ensure &quot;done()&quot; is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)" type="Error"><![CDATA[Error: Timeout of 10000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="apartment route tests" timestamp="2019-09-10T12:59:32" tests="4" file="C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js" failures="2" time="20.012">
+    <testcase name="apartment route tests &quot;before each&quot; hook for &quot;add and delete room&quot;" time="10.011" classname="&quot;before each&quot; hook for &quot;add and delete room&quot;">
+      <failure message="Timeout of 10000ms exceeded. For async tests and hooks, ensure &quot;done()&quot; is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)" type="Error"><![CDATA[Error: Timeout of 10000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)]]></failure>
+    </testcase>
+    <testcase name="apartment route tests &quot;after each&quot; hook for &quot;add and delete room&quot;" time="10.001" classname="&quot;after each&quot; hook for &quot;add and delete room&quot;">
+      <failure message="Timeout of 10000ms exceeded. For async tests and hooks, ensure &quot;done()&quot; is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)" type="Error"><![CDATA[Error: Timeout of 10000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves. (C:\Users\azahi\Desktop\QA\QA_Apartment_Manager\occupancyManagement\test\server.js)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

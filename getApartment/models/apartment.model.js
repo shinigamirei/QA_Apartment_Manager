@@ -17,7 +17,7 @@ let ApartmentSchema = new Schema({
         type: String,
 //        enum: ['Manchester', 'Brighton', 'Leeds', 'London'],
         required: true
-    }
+    },
     apartment_rooms: {
 		type: String,
 		required:true

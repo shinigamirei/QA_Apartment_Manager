@@ -8,7 +8,7 @@ let Occupancies = require('../models/occupancies.model');
 let Room = require('../models/room.model');
 require('dotenv').config();
 var moment = require('moment');
-
+require('mongoose').set('debug', true);
 
 apartmentRoutes.route('/create/').post(function (req, res) {
     console.log('Attempting to create an apartment');
@@ -64,9 +64,17 @@ apartmentRoutes.route('/edit/:id').post(function (req, res) {
 			foundApartment.apartment_availability=apartment.apartment_availability;
 			foundApartment.apartment_info=apartment.apartment_info;
 			foundApartment.apartment_rent=apartment.apartment_rent;
-			foundApartment.apartment_availability=apartment.apartment_availability;
 			foundApartment.apartment_bills=apartment.apartment_bills;
 			foundApartment.landlord_contact=apartment.landlord_contact;
+			foundApartment.room_occupancies=apartment.room_occupancies;
+			for (var i = 0; i < foundApartment.room_occupancies.length; i++) {
+				console.log(foundApartment.room_occupancies[i]._id)
+				if (moment(foundApartment.room_occupancies[i].occupancy_end).isAfter(apartment.apartment_availability)){
+					foundApartment.room_occupancies.set(i,{_id:foundApartment.room_occupancies[i]._id, trainee_id:foundApartment.room_occupancies[i].trainee_id, occupancy_start:foundApartment.room_occupancies[i].occupancy_start,occupancy_end:apartment.apartment_availability});
+				}
+			}
+			console.log(foundApartment);
+			console.log(foundApartment.room_occupancies);
 			foundApartment.save();
             res.status(200).send('Apartment ' + id + ' edited');
         }

@@ -69,8 +69,38 @@ apartmentRoutes.route('/edit/:id').post(function (req, res) {
 			foundApartment.room_occupancies=apartment.room_occupancies;
 			for (var i = 0; i < foundApartment.room_occupancies.length; i++) {
 				console.log(foundApartment.room_occupancies[i]._id)
+				if (moment(foundApartment.room_occupancies[i].occupancy_start).isAfter(apartment.apartment_availability)){
+					foundApartment.room_occupancies.splice(i, 1);
+					Trainee.findById(trainee_id, function (err, trainee){
+                    if(!trainee){
+                        console.log(err)
+                        console.log("couldn't clear trainee apartment")
+                    }
+                    else{
+                        console.log(trainee)
+                        trainee.apartment = ''
+                        trainee.apartment_start_date = null
+                        trainee.apartment_end_date = null
+                        trainee.save()
+                        res.status(200).send('Occupier removed');
+                        console.log(apartment.room_occupancies)
+                    }
+
+					i=0;
+				} else
 				if (moment(foundApartment.room_occupancies[i].occupancy_end).isAfter(apartment.apartment_availability)){
 					foundApartment.room_occupancies.set(i,{_id:foundApartment.room_occupancies[i]._id, trainee_id:foundApartment.room_occupancies[i].trainee_id, occupancy_start:foundApartment.room_occupancies[i].occupancy_start,occupancy_end:apartment.apartment_availability});
+					Trainee.findById(foundApartment.room_occupancies[i].trainee_id, function (err, trainee){
+						if(!trainee){
+							console.log(err)
+							console.log("couldn't clear trainee apartment")
+						}
+						else{
+							console.log(trainee)
+							trainee.apartment_end_date = CryptoJS.AES.encrypt(apartment.apartment_availability.toString(), '3FJSei8zPx').toString();
+							trainee.save()
+						}
+					});
 				}
 			}
 			console.log(foundApartment);

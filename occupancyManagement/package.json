@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=text --all mocha --recursively --timeout 10000 --exit"
+    "test": "nyc --reporter=text --all mocha --recursively --timeout 10000 --exit || :",
+    "posttest": "echo posttest"
   },
   "mocha": {
     "reporter": [

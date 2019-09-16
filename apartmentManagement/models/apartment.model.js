@@ -1,8 +1,24 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
-let OccupancySchema = require('./occupancies.model');
 let IssueSchema = require('./issues.model')
+
+let OccupancySchema = new Schema({
+    trainee_id: {
+        type: String,
+        required: true
+    },
+    occupancy_start: {
+        //		type: String,
+        type: Date,
+        required: true
+    },
+    occupancy_end: {
+        //		type: String,
+        type: Date,
+        required: true
+    }
+});
 
 let ApartmentSchema = new Schema({
     apartment_name: {
@@ -22,7 +38,7 @@ let ApartmentSchema = new Schema({
 		type: String,
 		required:true
 	},
-    room_occupancies: [OccupancySchema.schema],
+    room_occupancies: [OccupancySchema],
 	apartment_image:{
 		type:String
     },
@@ -31,7 +47,7 @@ let ApartmentSchema = new Schema({
 		required:false
     },
     apartment_issues: [IssueSchema.schema],
-    room_occupancies_archive: [OccupancySchema.schema],
+    room_occupancies_archive: [OccupancySchema],
     apartment_issues_archive: [IssueSchema.schema],
     status:{
         type: String,
